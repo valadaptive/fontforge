@@ -18,3 +18,5 @@ tags
 __pycache__
 *.py[co]
 
+.cache
+compile_commands.json
