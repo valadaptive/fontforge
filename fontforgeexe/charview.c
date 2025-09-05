@@ -2069,8 +2069,7 @@ static void DrawImageList(CharView *cv,GWindow pixmap,ImageList *backimages) {
     CharViewTab* tab = CVGetActiveTab(cv);
 
     while ( backimages!=NULL ) {
-	struct _GImage *base = backimages->image->list_len==0?
-		backimages->image->u.image:backimages->image->u.images[0];
+	struct _GImage *base = backimages->image->image;
 
 	GDrawDrawImageMagnified(pixmap, backimages->image, NULL,
 		(int) (tab->xoff + rint(backimages->xoff * tab->scale)),
@@ -3080,7 +3079,7 @@ static GWindow CharIcon(CharView *cv, FontView *fv) {
 	memset(&gi,'\0',sizeof(gi));
 	memset(&base,'\0',sizeof(base));
 	memset(&clut,'\0',sizeof(clut));
-	gi.u.image = &base;
+	gi.image = &base;
 	base.trans = -1;
 	base.clut = &clut;
 	if ( bdfc->byte_data ) { int i;
@@ -5842,7 +5841,7 @@ void LogoExpose(GWindow pixmap,GEvent *event, GRect *r,enum drawmode dm) {
 	GImage *which = (dm==dm_fore) ? &GIcon_FontForgeLogo :
 			(dm==dm_back) ? &GIcon_FontForgeBack :
 			    &GIcon_FontForgeGuide;
-	struct _GImage *base = which->u.image;
+	struct _GImage *base = which->image;
 	xoff = (sbsize-base->width);
 	yoff = (sbsize-base->height);
 	GDrawPushClip(pixmap,r,&old);
@@ -12265,13 +12264,13 @@ static void _CharViewCreate(CharView *cv, SplineChar *sc, FontView *fv,int enc,i
     cv->nfh = as+ds; cv->nas = as;
 
     cv->height = pos.height; cv->width = pos.width;
-    cv->gi.u.image = calloc(1,sizeof(struct _GImage));
-    cv->gi.u.image->image_type = it_mono;
-    cv->gi.u.image->clut = calloc(1,sizeof(GClut));
-    cv->gi.u.image->clut->trans_index = cv->gi.u.image->trans = 0;
-    cv->gi.u.image->clut->clut_len = 2;
-    cv->gi.u.image->clut->clut[0] = view_bgcol;
-    cv->gi.u.image->clut->clut[1] = fillcol;
+    cv->gi.image = calloc(1,sizeof(struct _GImage));
+    cv->gi.image->image_type = it_mono;
+    cv->gi.image->clut = calloc(1,sizeof(GClut));
+    cv->gi.image->clut->trans_index = cv->gi.image->trans = 0;
+    cv->gi.image->clut->clut_len = 2;
+    cv->gi.image->clut->clut[0] = view_bgcol;
+    cv->gi.image->clut->clut[1] = fillcol;
     cv->b1_tool = cv_b1_tool; cv->cb1_tool = cv_cb1_tool;
     cv->b1_tool_old = cv->b1_tool;
     cv->b2_tool = cv_b2_tool; cv->cb2_tool = cv_cb2_tool;
@@ -12644,8 +12643,8 @@ void CharViewFree(CharView *cv) {
 	GDrawDestroyWindow(cv->ruler_linger_w);
 	cv->ruler_linger_w = NULL;
     }
-    free(cv->gi.u.image->clut);
-    free(cv->gi.u.image);
+    free(cv->gi.image->clut);
+    free(cv->gi.image);
 #if HANYANG
     if ( cv->jamodisplay!=NULL )
 	Disp_DoFinish(cv->jamodisplay,true);
