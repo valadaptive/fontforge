@@ -29,7 +29,6 @@
 
 #include "gimage.h"
 #include "gimagebmpP.h"
-GImage *_GImage_Create(enum image_type type, int32_t width, int32_t height);
 
 static int getshort(FILE *fp) {
 /* Get Little-Endian short 16bit value. Return value if okay, -1 if error */

@@ -113,8 +113,6 @@ typedef struct gimage {
     void *userdata;
 } GImage;
 
-enum pastetrans_type { ptt_paste_trans_to_trans, ptt_old_shines_through};
-
 typedef struct grect {
     int32_t x,y,width,height;
 } GRect;
