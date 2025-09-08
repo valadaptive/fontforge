@@ -1092,7 +1092,7 @@ static void PrefsUI_LoadPrefs(void)
 //	    fprintf(stderr,"TESTING: getPixmapDir:%s\n", getPixmapDir() );
 //	    fprintf(stderr,"TESTING: getShareDir:%s\n", getShareDir() );
 //	}
-	snprintf(path, PATH_MAX, "%s/%s", getPixmapDir(), "resources" );
+	snprintf(path, PATH_MAX, "%s/%s", getPixmapDir(), "resources.in" );
 //	if (!quiet)
 //	    fprintf(stderr,"trying default theme:%s\n", path );
 	real_xdefs_filename = path;
