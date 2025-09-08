@@ -309,68 +309,6 @@ static void GMenuDrawArrow(struct gmenu *m, int ybase, int r2l) {
     }
 }
 
-static void GMenuDrawUpArrow(struct gmenu *m, int ybase) {
-    int pt = GDrawPointsToPixels(m->w,1);
-    int x = (m->rightedge+m->tickoff)/2;
-    int as = 2*(m->as/2);
-    GPoint p[3];
-
-    p[0].x = x;			p[0].y = ybase - as;
-    p[1].x = x-as;		p[1].y = ybase;
-    p[2].x = x+as;		p[2].y = ybase;
-
-    GDrawSetLineWidth(m->w,pt);
-
-    // If rendering menus in standard (3-dimensional) look, use the shadow colors for fake relief.
-    // Otherwise, use foreground colors.
-    if (menu_3d_look) {
-        GDrawDrawLine(m->w,p[0].x,p[0].y,p[1].x,p[1].y,m->box->border_brightest);
-        GDrawDrawLine(m->w,p[0].x,p[0].y+pt,p[1].x+pt,p[1].y,m->box->border_brightest);
-        GDrawDrawLine(m->w,p[1].x,p[1].y,p[2].x,p[2].y,m->box->border_darker);
-        GDrawDrawLine(m->w,p[1].x+pt,p[1].y,p[2].x-pt,p[2].y,m->box->border_darker);
-        GDrawDrawLine(m->w,p[2].x,p[2].y,p[0].x,p[0].y,m->box->border_darkest);
-        GDrawDrawLine(m->w,p[2].x-pt,p[2].y,p[0].x,p[0].y+pt,m->box->border_darkest);
-    } else {
-        GDrawDrawLine(m->w,p[0].x,p[0].y,p[1].x,p[1].y,m->box->main_foreground);
-        GDrawDrawLine(m->w,p[0].x,p[0].y+pt,p[1].x+pt,p[1].y,m->box->main_foreground);
-        GDrawDrawLine(m->w,p[1].x,p[1].y,p[2].x,p[2].y,m->box->main_foreground);
-        GDrawDrawLine(m->w,p[1].x+pt,p[1].y,p[2].x-pt,p[2].y,m->box->main_foreground);
-        GDrawDrawLine(m->w,p[2].x,p[2].y,p[0].x,p[0].y,m->box->main_foreground);
-        GDrawDrawLine(m->w,p[2].x-pt,p[2].y,p[0].x,p[0].y+pt,m->box->main_foreground);
-    }
-}
-
-static void GMenuDrawDownArrow(struct gmenu *m, int ybase) {
-    int pt = GDrawPointsToPixels(m->w,1);
-    int x = (m->rightedge+m->tickoff)/2;
-    int as = 2*(m->as/2);
-    GPoint p[3];
-
-    p[0].x = x;			p[0].y = ybase;
-    p[1].x = x-as;		p[1].y = ybase - as;
-    p[2].x = x+as;		p[2].y = ybase - as;
-
-    GDrawSetLineWidth(m->w,pt);
-
-    // If rendering menus in standard (3-dimensional) look, use the shadow colors for fake relief.
-    // Otherwise, use foreground colors.
-    if (menu_3d_look) {
-        GDrawDrawLine(m->w,p[0].x,p[0].y,p[1].x,p[1].y,m->box->border_darker);
-        GDrawDrawLine(m->w,p[0].x,p[0].y+pt,p[1].x+pt,p[1].y,m->box->border_darker);
-        GDrawDrawLine(m->w,p[1].x,p[1].y,p[2].x,p[2].y,m->box->border_brightest);
-        GDrawDrawLine(m->w,p[1].x+pt,p[1].y,p[2].x-pt,p[2].y,m->box->border_brightest);
-        GDrawDrawLine(m->w,p[2].x,p[2].y,p[0].x,p[0].y,m->box->border_darkest);
-        GDrawDrawLine(m->w,p[2].x-pt,p[2].y,p[0].x,p[0].y+pt,m->box->border_darkest);
-    } else {
-        GDrawDrawLine(m->w,p[0].x,p[0].y,p[1].x,p[1].y,m->box->main_foreground);
-        GDrawDrawLine(m->w,p[0].x,p[0].y+pt,p[1].x+pt,p[1].y,m->box->main_foreground);
-        GDrawDrawLine(m->w,p[1].x,p[1].y,p[2].x,p[2].y,m->box->main_foreground);
-        GDrawDrawLine(m->w,p[1].x+pt,p[1].y,p[2].x-pt,p[2].y,m->box->main_foreground);
-        GDrawDrawLine(m->w,p[2].x,p[2].y,p[0].x,p[0].y,m->box->main_foreground);
-        GDrawDrawLine(m->w,p[2].x-pt,p[2].y,p[0].x,p[0].y+pt,m->box->main_foreground);
-    }
-}
-
 /**
  * Return the menu bar at the top of this menu list
  * */
@@ -499,12 +437,7 @@ static int gmenu_expose(struct gmenu *m, GEvent *event,GWindow pixmap) {
     for ( i = event->u.expose.rect.y/m->fh+m->offtop; i<m->mcnt &&
 	    i<=(event->u.expose.rect.y+event->u.expose.rect.height)/m->fh+m->offtop;
 	    ++i ) {
-	if ( i==m->offtop && m->offtop!=0 && m->vsb==NULL )
-	    GMenuDrawUpArrow(m, m->bp+m->as);
-	else if ( m->lcnt!=m->mcnt && i==m->lcnt+m->offtop-1 && i!=m->mcnt-1 ) {
-	    if ( m->vsb==NULL )
-		GMenuDrawDownArrow(m, m->bp+(i-m->offtop)*m->fh+m->as);
-	    else
+	if ( m->lcnt!=m->mcnt && i==m->lcnt+m->offtop-1 && i!=m->mcnt-1 ) {
 		GMenuDrawMenuLine(m, &m->mi[i], m->bp+(i-m->offtop)*m->fh, pixmap);
     break;	/* Otherwise we get bits of the line after the last */
 	} else
