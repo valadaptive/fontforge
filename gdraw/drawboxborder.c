@@ -862,14 +862,13 @@ static int GBoxDiamondBorder(GWindow gw,GRect *pos,GBox *design,
     }
 
     if ( design->flags & box_foreground_border_outer ) {
-	GPoint pts[5];
+	GPoint pts[4];
 	GDrawSetLineWidth(gw,scale);
 	pts[0].x = pos->x+scale/2; pts[0].y = pos->y+pos->height/2;
 	pts[1].x = pos->x+pos->width/2; pts[1].y = pos->y+scale/2;
 	pts[2].x = pos->x+pos->width-1-scale/2; pts[2].y = pts[0].y;
 	pts[3].x = pts[1].x; pts[3].y = pos->y+pos->height-1-scale/2;
-	pts[4] = pts[0];
-	GDrawDrawPoly(gw,pts,5,color_outer);
+	GDrawDrawPoly(gw,pts,4,color_outer, true);
 	inset += scale;
     }
 
@@ -921,16 +920,15 @@ static int GBoxDiamondBorder(GWindow gw,GRect *pos,GBox *design,
 
     if ( (design->flags & box_foreground_border_inner) ||
 	    ((design->flags & box_active_border_inner) && state==gs_active)) {
-	GPoint pts[5];
+	GPoint pts[4];
 	GDrawSetLineWidth(gw,scale);
 	pts[0].x = pos->x+inset+scale/2; pts[0].y = pos->y+pos->height/2;
 	pts[1].x = pos->x+pos->width/2; pts[1].y = pos->y+inset+scale/2;
 	pts[2].x = pos->x+pos->width-1-inset-scale/2; pts[2].y = pts[0].y;
 	pts[3].x = pts[1].x; pts[3].y = pos->y+pos->height-1-inset-scale/2;
-	pts[4] = pts[0];
-	GDrawDrawPoly(gw,pts,5,
+	GDrawDrawPoly(gw,pts,4,
 		state == gs_active && (design->flags & box_active_border_inner) ?
-			design->active_border : color_inner);
+			design->active_border : color_inner, true);
 	inset += scale;
     }
 return( inset );

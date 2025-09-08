@@ -516,8 +516,8 @@ static void DrawTangentPoint( GWindow pixmap, int x, int y,
 			      BasePoint *unit, int outline, Color col )
 {
     int dir;
-    const int gp_sz = 4;
-    GPoint gp[5];
+    const int gp_sz = 3;
+    GPoint gp[3];
 
     dir = 0;
     if ( unit->x!=0 || unit->y!=0 ) {
@@ -562,11 +562,10 @@ static void DrawTangentPoint( GWindow pixmap, int x, int y,
 	gp[1].x = gp[0].x-xdiff; gp[1].y = gp[0].y;
 	gp[2].x = gp[0].x; gp[2].y = gp[0].y-ydiff;
     }
-    gp[3] = gp[0];
     if ( outline )
-	GDrawDrawPoly(pixmap,gp,gp_sz,col);
+	GDrawDrawPoly(pixmap,gp,gp_sz,col,true);
     else
-	GDrawFillPoly(pixmap,gp,4,col);
+	GDrawFillPoly(pixmap,gp,gp_sz,col);
 }
 
 static GRect* DrawPoint_SetupRectForSize( GRect* r, int cx, int cy, float sz )
@@ -838,8 +837,8 @@ return;
     }
     else if ( sp->pointtype==pt_hvcurve )
     {
-	const int gp_sz = 5;
-	GPoint gp[5];
+	const int gp_sz = 4;
+	GPoint gp[4];
 
 	float sizedelta = 3;
 	float offsetdelta = 0; // 4 * tab->scale;
@@ -855,10 +854,9 @@ return;
 	gp[1].x = basex + 0;         gp[1].y = basey + sizedelta;
 	gp[2].x = basex + sizedelta; gp[2].y = basey + 0;
 	gp[3].x = basex + 0;         gp[3].y = basey - sizedelta;
-	gp[4] = gp[0];
 
 	if ( sp->selected || isfake )
-	    GDrawDrawPoly(pixmap,gp,gp_sz,col);
+	    GDrawDrawPoly(pixmap,gp,gp_sz,col,true);
 	else
 	    GDrawFillPoly(pixmap,gp,gp_sz,col);
     }
@@ -957,16 +955,16 @@ return;
 	gp[1].x = x;           gp[1].y = y-sizedelta;
 	gp[2].x = x;           gp[2].y = y+sizedelta;
 	gp[3].x = x-sizedelta; gp[3].y = y+sizedelta;
-	GDrawDrawPoly(pixmap,gp,4,col);
+	GDrawDrawPoly(pixmap,gp,4,col,false);
     } else if ( ty == SPIRO_LEFT ) {
 	GDrawSetLineWidth(pixmap,2);
 	gp[0].x = x+sizedelta; gp[0].y = y-sizedelta;
 	gp[1].x = x;           gp[1].y = y-sizedelta;
 	gp[2].x = x;           gp[2].y = y+sizedelta;
 	gp[3].x = x+sizedelta; gp[3].y = y+sizedelta;
-	GDrawDrawPoly(pixmap,gp,4,col);
+	GDrawDrawPoly(pixmap,gp,4,col,false);
     } else if ( ty == SPIRO_G2 ) {
-	GPoint gp[5];
+	GPoint gp[4];
 
 	float sizedelta = 3;
 	float offsetdelta = 1;
@@ -982,11 +980,10 @@ return;
 	gp[1].x = basex + 0;         gp[1].y = basey + sizedelta;
 	gp[2].x = basex + sizedelta; gp[2].y = basey + 0;
 	gp[3].x = basex + 0;         gp[3].y = basey - sizedelta;
-	gp[4] = gp[0];
 	if ( selected )
-	    GDrawDrawPoly(pixmap,gp,5,col);
+	    GDrawDrawPoly(pixmap,gp,4,col,true);
 	else
-	    GDrawFillPoly(pixmap,gp,5,col);
+	    GDrawFillPoly(pixmap,gp,4,col);
     } else if ( ty==SPIRO_CORNER ) {
 	if ( selected )
 	    GDrawDrawRect(pixmap,&r,col);
@@ -1995,7 +1992,7 @@ return;
 }
 
 void DrawAnchorPoint(GWindow pixmap,int x, int y,int selected) {
-    GPoint gp[9];
+    GPoint gp[8];
     Color col = anchorcol;
 
     gp[0].x = x-1; gp[0].y = y-1;
@@ -2006,11 +2003,10 @@ void DrawAnchorPoint(GWindow pixmap,int x, int y,int selected) {
     gp[5].x = x;   gp[5].y = y+6;
     gp[6].x = x-1; gp[6].y = y+1;
     gp[7].x = x-6; gp[7].y = y;
-    gp[8] = gp[0];
     if ( selected )
-	GDrawDrawPoly(pixmap,gp,9,col);
+	GDrawDrawPoly(pixmap,gp,8,col, true);
     else
-	GDrawFillPoly(pixmap,gp,9,col);
+	GDrawFillPoly(pixmap,gp,8,col);
 }
 
 static void CVDrawAnchorPoints(CharView *cv,GWindow pixmap) {

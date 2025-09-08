@@ -390,9 +390,9 @@ void GDrawDrawArc(GWindow w, GRect *rect, int32_t sangle, int32_t tangle, Color 
 	(w->display->funcs->drawArc)(w,rect,sangle,tangle,col);
 }
 
-void GDrawDrawPoly(GWindow w, GPoint *pts, int16_t cnt, Color col) {
+void GDrawDrawPoly(GWindow w, GPoint *pts, int16_t cnt, Color col, bool closed) {
     if ( col!=COLOR_UNKNOWN )
-	(w->display->funcs->drawPoly)(w,pts,cnt,col);
+	(w->display->funcs->drawPoly)(w,pts,cnt,col,closed);
 }
 
 void GDrawFillPoly(GWindow w, GPoint *pts, int16_t cnt, Color col) {

@@ -375,7 +375,7 @@ extern void GDrawFillRoundRect(GWindow w, GRect *rect, int radius, Color col);
 extern void GDrawDrawElipse(GWindow w, GRect *rect, Color col);
 extern void GDrawFillElipse(GWindow w, GRect *rect, Color col);
 extern void GDrawDrawArc(GWindow w, GRect *rect, int32_t sangle, int32_t tangle, Color col);
-extern void GDrawDrawPoly(GWindow w, GPoint *pts, int16_t cnt, Color col);
+extern void GDrawDrawPoly(GWindow w, GPoint *pts, int16_t cnt, Color col, bool closed);
 extern void GDrawFillPoly(GWindow w, GPoint *pts, int16_t cnt, Color col);
 extern void GDrawScroll(GWindow w, GRect *rect, int32_t hor, int32_t vert);
 extern void GDrawDrawImage(GWindow w, GImage *img, GRect *src, int32_t x, int32_t y);

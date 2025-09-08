@@ -26,6 +26,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <cairo.h>
 #include <fontforge-config.h>
 
 /**
@@ -911,7 +912,7 @@ void GGDKDrawDrawArc(GWindow w, GRect *rect, int32_t sangle, int32_t eangle, Col
 
 }
 
-void GGDKDrawDrawPoly(GWindow w, GPoint *pts, int16_t cnt, Color col) {
+void GGDKDrawDrawPoly(GWindow w, GPoint *pts, int16_t cnt, Color col, bool closed) {
     //Log(LOGDEBUG, " ");
     GGDKWindow gw = (GGDKWindow)w;
     _GGDKDraw_CheckAutoPaint(gw);
@@ -926,6 +927,7 @@ void GGDKDrawDrawPoly(GWindow w, GPoint *pts, int16_t cnt, Color col) {
     for (int i = 1; i < cnt; ++i) {
         cairo_line_to(gw->cc, pts[i].x + off, pts[i].y + off);
     }
+    if (closed) cairo_close_path(gw->cc);
     cairo_stroke(gw->cc);
 
 }

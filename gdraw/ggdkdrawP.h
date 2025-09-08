@@ -290,7 +290,7 @@ void GGDKDrawFillRoundRect(GWindow gw, GRect *rect, int radius, Color col);
 void GGDKDrawDrawEllipse(GWindow gw, GRect *rect, Color col);
 void GGDKDrawFillEllipse(GWindow gw, GRect *rect, Color col);
 void GGDKDrawDrawArc(GWindow gw, GRect *rect, int32_t sangle, int32_t eangle, Color col);
-void GGDKDrawDrawPoly(GWindow gw, GPoint *pts, int16_t cnt, Color col);
+void GGDKDrawDrawPoly(GWindow gw, GPoint *pts, int16_t cnt, Color col, bool closed);
 void GGDKDrawFillPoly(GWindow gw, GPoint *pts, int16_t cnt, Color col);
 void GGDKDrawDrawImage(GWindow gw, GImage *gimg, GRect *src, int32_t x, int32_t y);
 void GGDKDrawDrawGlyph(GWindow gw, GImage *gimg, GRect *src, int32_t x, int32_t y);

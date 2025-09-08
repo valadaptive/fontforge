@@ -437,7 +437,8 @@ return( false );
 	fg = g->state==gs_disabled?g->box->disabled_foreground:
 			g->box->main_foreground==COLOR_DEFAULT?GDrawGetDefaultForeground(GDrawGetDisplayOfWindow(pixmap)):
 			g->box->main_foreground;
-        GDrawDrawPoly(pixmap, pts, i, fg);
+        // TODO(valadaptive): now that we have the closed flag, we can simplify this probably
+        GDrawDrawPoly(pixmap, pts, i, fg, false);
 
          /* draw pupil */
         rect.x=gr->onoffrect.x+bp+w*.3;
@@ -467,7 +468,8 @@ return( false );
              /* draw lashes */
             if (i>0 && i<6) GDrawDrawLine(pixmap, pts[i].x,pts[i].y, .75*w*cos(angle)+x+w/2, .75*h*sin(angle)+y+h/4, fg);
         }
-        GDrawDrawPoly(pixmap, pts, sizeof(pts)/sizeof(pts[0]), fg);
+        // TODO(valadaptive): now that we have the closed flag, we can simplify this probably
+        GDrawDrawPoly(pixmap, pts, sizeof(pts)/sizeof(pts[0]), fg, false);
     }
 
     GDrawPopClip(pixmap,&old2);

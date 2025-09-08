@@ -207,7 +207,7 @@ struct displayfuncs {
     void (*drawElipse)(GWindow, GRect *rect, Color col);
     void (*fillElipse)(GWindow, GRect *rect, Color col);
     void (*drawArc)(GWindow, GRect *rect, int32_t sangle, int32_t eangle, Color col);
-    void (*drawPoly)(GWindow, GPoint *pts, int16_t cnt, Color col);
+    void (*drawPoly)(GWindow, GPoint *pts, int16_t cnt, Color col, bool closed);
     void (*fillPoly)(GWindow, GPoint *pts, int16_t cnt, Color col);
     void (*scroll)(GWindow, GRect *rect, int32_t hor, int32_t vert);
 
