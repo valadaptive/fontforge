@@ -46,7 +46,6 @@ static int mac_menu_icons = true;
 #else
 static int mac_menu_icons = false;
 #endif
-static int menu_3d_look = 1; // The 3D look is the default/legacy setting.
 static int menu_grabs=true;
 static int mask_set=0;
 static int menumask = ksm_control|ksm_meta|ksm_shift;		/* These are the modifier masks expected in menus. Will be overridden by what's actually there */
@@ -73,7 +72,6 @@ GResInfo gmenubar_ri = {
 };
 static struct resed menu_re[] = {
     {N_("MacIcons"), "MacIcons", rt_bool, &mac_menu_icons, N_("Whether to use mac-like icons to indicate modifiers (for instance ^ for Control)\nor to use an abbreviation (for instance \"Cnt-\")"), NULL, { 0 }, 0, 0 },
-    {N_("3D Look"), "3DLook", rt_bool, &menu_3d_look, N_("Whether the menu is presented with a 3D appearance"), NULL, { 0 }, 0, 0 },
     {N_("Grab"), "Grab", rt_bool, &menu_grabs, N_("Whether the menu 'grabs' the mouse pointer"), NULL, { 0 }, 0, 0 },
     RESED_EMPTY
 };
@@ -270,43 +268,12 @@ static void GMenuDrawArrow(struct gmenu *m, int ybase, int r2l) {
     int as = 2*(m->as/2);
     int x = r2l ? m->bp+2*pt : m->rightedge-2*pt;
     GPoint p[3];
+	p[0].x = x+1*(as/2);		p[0].y = ybase;
+	p[1].x = x;			p[1].y = ybase-as/2;
+	p[2].x = x+1*(as/2);		p[2].y = ybase-as;
 
     GDrawSetLineWidth(m->w,pt);
-    if ( r2l ) {
-	p[0].x = x;			p[0].y = ybase-as/2;
-	p[1].x = x+1*(as/2);		p[1].y = ybase;
-	p[2].x = p[1].x;		p[2].y = ybase-as;
-
-	// If rendering menus in standard (3-dimensional) look, use the shadow colors for fake relief.
-	// Otherwise, use foreground colors.
-	if (menu_3d_look) {
-		GDrawDrawLine(m->w,p[0].x,p[0].y,p[2].x,p[2].y,m->box->border_brighter);
-		GDrawDrawLine(m->w,p[0].x+pt,p[0].y,p[2].x+pt,p[2].y+pt,m->box->border_brighter);
-		GDrawDrawLine(m->w,p[1].x,p[1].y,p[0].x,p[0].y,m->box->border_darkest);
-		GDrawDrawLine(m->w,p[1].x+pt,p[1].y-pt,p[0].x-pt,p[0].y,m->box->border_darkest);
-	} else {
-		GDrawDrawLine(m->w,p[0].x,p[0].y,p[2].x,p[2].y,m->box->main_foreground);
-		GDrawDrawLine(m->w,p[0].x+pt,p[0].y,p[2].x+pt,p[2].y+pt,m->box->main_foreground);
-		GDrawDrawLine(m->w,p[1].x,p[1].y,p[0].x,p[0].y,m->box->main_foreground);
-		GDrawDrawLine(m->w,p[1].x+pt,p[1].y-pt,p[0].x-pt,p[0].y,m->box->main_foreground);
-	}
-    } else {
-	p[0].x = x;			p[0].y = ybase-as/2;
-	p[1].x = x-1*(as/2);		p[1].y = ybase;
-	p[2].x = p[1].x;		p[2].y = ybase-as;
-
-	if (menu_3d_look) {
-		GDrawDrawLine(m->w,p[0].x,p[0].y,p[2].x,p[2].y,m->box->border_brighter);
-		GDrawDrawLine(m->w,p[0].x-pt,p[0].y,p[2].x+pt,p[2].y+pt,m->box->border_brighter);
-		GDrawDrawLine(m->w,p[1].x,p[1].y,p[0].x,p[0].y,m->box->border_darkest);
-		GDrawDrawLine(m->w,p[1].x+pt,p[1].y-pt,p[0].x-pt,p[0].y,m->box->border_darkest);
-	} else {
-		GDrawDrawLine(m->w,p[0].x,p[0].y,p[2].x,p[2].y,m->box->main_foreground);
-		GDrawDrawLine(m->w,p[0].x-pt,p[0].y,p[2].x+pt,p[2].y+pt,m->box->main_foreground);
-		GDrawDrawLine(m->w,p[1].x,p[1].y,p[0].x,p[0].y,m->box->main_foreground);
-		GDrawDrawLine(m->w,p[1].x+pt,p[1].y-pt,p[0].x-pt,p[0].y,m->box->main_foreground);
-	}
-    }
+	GDrawDrawPoly(m->w, p, 3, m->box->main_foreground, false);
 }
 
 /**
@@ -1586,24 +1553,12 @@ static void GMenuBarDrawDownArrow(GWindow pixmap, GMenuBar *mb, int x) {
     int ybase = mb->g.inner.y + size + (mb->g.inner.height-size)/2;
     GPoint p[3];
 
-    p[0].x = x+size;		p[0].y = ybase;
-    p[1].x = x;			p[1].y = ybase - size;
+    p[0].x = x;			p[0].y = ybase - size;
+    p[1].x = x+size;		p[1].y = ybase;
     p[2].x = x+2*size;		p[2].y = ybase - size;
 
     GDrawSetLineWidth(pixmap,pt);
-
-    // If rendering menus in standard (3-dimensional) look, use the shadow colors for fake relief.
-    // Otherwise, use foreground colors.
-    if (menu_3d_look) {
-        GDrawDrawLine(pixmap,p[0].x,p[0].y,p[1].x,p[1].y,mb->g.box->border_darker);
-        GDrawDrawLine(pixmap,p[0].x,p[0].y+pt,p[1].x+pt,p[1].y,mb->g.box->border_darker);
-        GDrawDrawLine(pixmap,p[1].x,p[1].y,p[2].x,p[2].y,mb->g.box->border_brightest);
-        GDrawDrawLine(pixmap,p[1].x+pt,p[1].y,p[2].x-pt,p[2].y,mb->g.box->border_brightest);
-        GDrawDrawLine(pixmap,p[2].x,p[2].y,p[0].x,p[0].y,mb->g.box->border_darkest);
-        GDrawDrawLine(pixmap,p[2].x-pt,p[2].y,p[0].x,p[0].y+pt,mb->g.box->border_darkest);
-    } else {
-        GDrawDrawPoly(pixmap, p, 3, mb->g.box->main_foreground, true);
-    }
+    GDrawDrawPoly(pixmap, p, 3, mb->g.box->main_foreground, false);
 }
 
 static int gmenubar_expose(GWindow pixmap, GGadget *g, GEvent *expose) {

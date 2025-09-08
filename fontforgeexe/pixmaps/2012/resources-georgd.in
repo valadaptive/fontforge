@@ -396,7 +396,6 @@ Gdraw.GMenu.Box.BorderShape: rect
 Gdraw.GMenu.Box.Padding: 3
 Gdraw.GMenu.Font: 83% ^View.DefaultFont
 Gdraw.GMenu.MacIcons: @GDRAW_GMENU_MACICONS@
-Gdraw.GMenu.3DLook: True
 Gdraw.GMenu.Grab: True
 Gdraw.GMatrixEdit.Box.NormalBackground: #ffffff
 Gdraw.GMatrixEdit.Box.DisabledBackground: #edeceb
