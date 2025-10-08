@@ -7007,9 +7007,9 @@ return;
 	}
 	GDrawSetCursor(fv->v,ct_pointer);
     }
-    for ( mvs=sf->metrics; mvs!=NULL; mvs=mvs->next ) if ( mvs->bdf==NULL ) {
-	BDFFontFree(mvs->show);
-	mvs->show = FVSplineFontPieceMeal(sf,mvs->layer,mvs->ptsize,mvs->dpi,
+    for ( mvs=sf->metrics; mvs!=NULL; mvs=mvs->next ) if ( mvs->fonttype==mv_spline ) {
+	BDFFontFree(mvs->showfont.piecemeal);
+	mvs->showfont.piecemeal = FVSplineFontPieceMeal(sf,mvs->layer,mvs->ptsize,mvs->dpi,
 		mvs->antialias?(pf_antialias|pf_ft_recontext):pf_ft_recontext,NULL);
 	GDrawRequestExpose(mvs->gw,NULL,false);
     }

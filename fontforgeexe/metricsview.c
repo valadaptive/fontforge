@@ -48,6 +48,7 @@
 #include "tottfgpos.h"
 #include "ustring.h"
 #include "utype.h"
+#include "views.h"
 #include "wordlistparser.h"
 #include "shapers/shaper_shim.hpp"
 
@@ -252,7 +253,7 @@ static void MVSubVExpose(MetricsView *mv, GWindow pixmap, GEvent *event) {
     if ( mv->showgrid )
 	GDrawDrawLine(pixmap,xbase,0,xbase,mv->vheight,widthcol);
 
-    if ( mv->bdf==NULL && MVShowGrid(mv) ) {
+    if ( mv->fonttype == mv_spline && MVShowGrid(mv) ) {
 	y = mv->metrics[0].dy-mv->yoff;
 	MVDrawLine(mv,pixmap,0,y,mv->vwidth,y,widthcol);
     }
@@ -261,7 +262,7 @@ static void MVSubVExpose(MetricsView *mv, GWindow pixmap, GEvent *event) {
     for ( i=0; i<mv->glyphcnt; ++i ) {
 	if ( mv->perchar[i].selected ) si = i;
 	y = mv->metrics[i].dy-mv->yoff;
-	if ( mv->bdf==NULL &&  MVShowGrid(mv)) {
+	if ( mv->fonttype == mv_spline &&  MVShowGrid(mv)) {
 	    int yp = y+mv->metrics[i].dheight+mv->metrics[i].kernafter;
 	    MVDrawLine(mv,pixmap,0, yp,mv->vwidth,yp,
 		    mv->type==mv_kernonly  && i!=mv->glyphcnt-1 ?kernlinecol :
@@ -269,8 +270,8 @@ static void MVSubVExpose(MetricsView *mv, GWindow pixmap, GEvent *event) {
 			widthcol);
 	}
 	y += mv->metrics[i].yoff;
-	bdfc = mv->bdf==NULL ?	BDFPieceMealCheck(mv->show,mv->glyphs[i].sc->orig_pos) :
-				BDFGetMergedChar( mv->bdf->glyphs[mv->glyphs[i].sc->orig_pos]);
+	bdfc = mv->fonttype == mv_spline ?	BDFPieceMealCheck(mv->showfont.piecemeal,mv->glyphs[i].sc->orig_pos) :
+				BDFGetMergedChar( mv->showfont.bdf->glyphs[mv->glyphs[i].sc->orig_pos]);
 	if ( bdfc==NULL )
     continue;
 	y += as-rint(iscale * bdfc->ymax);
@@ -294,10 +295,10 @@ static void MVSubVExpose(MetricsView *mv, GWindow pixmap, GEvent *event) {
 	    } else {
 		int scale, l;
 		Color fg, bg;
-		if ( mv->bdf!=NULL )
-		    scale = BDFDepth(mv->bdf);
+		if ( mv->fonttype == mv_bitmap )
+		    scale = BDFDepth(mv->showfont.bdf);
 		else
-		    scale = BDFDepth(mv->show);
+		    scale = BDFDepth(mv->showfont.piecemeal);
 		base.image_type = it_index;
 		clut.clut_len = 1<<scale;
 		bg = view_bgcol;
@@ -320,9 +321,9 @@ static void MVSubVExpose(MetricsView *mv, GWindow pixmap, GEvent *event) {
 			(int) rint((width*mv_scales[mv->scale_index])),
 			(int) rint((height*mv_scales[mv->scale_index])));
 	}
-	if ( mv->bdf!=NULL ) BDFCharFree( bdfc );
+	if ( mv->fonttype == mv_bitmap ) BDFCharFree( bdfc );
     }
-    if ( si!=-1 && mv->bdf==NULL &&  MVShowGrid(mv) && mv->type==mv_kernwidth ) {
+    if ( si!=-1 && mv->fonttype == mv_spline &&  MVShowGrid(mv) && mv->type==mv_kernwidth ) {
 	y = mv->metrics[si].dy-mv->yoff;
 	if ( si!=0 )
 	    MVDrawLine(mv,pixmap,0,y,mv->vwidth,y,kernlinecol);
@@ -358,7 +359,7 @@ return;
     if ( mv->showgrid )
 	GDrawDrawLine(pixmap,0,ybase,mv->dwidth,ybase,widthcol);
 
-    if ( mv->bdf==NULL && MVShowGrid(mv) ) {
+    if ( mv->fonttype == mv_spline && MVShowGrid(mv) ) {
 	x = mv->metrics[0].dx-mv->xoff;
 	if ( mv->right_to_left )
 	    x = mv->vwidth - x - mv->metrics[0].dwidth - mv->metrics[0].kernafter;
@@ -374,7 +375,7 @@ return;
 	x = mv->metrics[i].dx-mv->xoff;
 	if ( mv->right_to_left )
 	    x = mv->vwidth - x - mv->metrics[i].dwidth - mv->metrics[i].kernafter;
-	if ( mv->bdf==NULL && MVShowGrid(mv) ) {
+	if ( mv->fonttype == mv_spline && MVShowGrid(mv) ) {
 	    int xp = x+mv->metrics[i].dwidth+mv->metrics[i].kernafter;
 	    MVDrawLine(mv,pixmap,xp, 0,xp,mv->vheight,
 		    mv->type==mv_kernonly  && i!=mv->glyphcnt-1 ?kernlinecol :
@@ -388,8 +389,8 @@ return;
 	    x += mv->metrics[i].kernafter-mv->metrics[i].xoff;
 	else
 	    x += mv->metrics[i].xoff;
-	bdfc = mv->bdf==NULL ?	BDFPieceMealCheck(mv->show,mv->glyphs[i].sc->orig_pos) :
-				BDFGetMergedChar( mv->bdf->glyphs[mv->glyphs[i].sc->orig_pos]);
+	bdfc = mv->fonttype == mv_spline ?	BDFPieceMealCheck(mv->showfont.piecemeal,mv->glyphs[i].sc->orig_pos) :
+				BDFGetMergedChar( mv->showfont.bdf->glyphs[mv->glyphs[i].sc->orig_pos]);
 	if ( bdfc==NULL )
     continue;
 	x += rint( iscale * bdfc->xmin );
@@ -411,19 +412,19 @@ return;
 		clut.clut[0] = view_bgcol;
 		clut.clut[1] = mv->perchar[i].selected ? selglyphcol : glyphcol;
 	    } else {
-		int lscale = 3000/mv->pixelsize, l;
+		int depth;
 		Color fg, bg;
 		int scale;
-		if ( mv->bdf!=NULL )
-		    lscale = BDFDepth(mv->bdf);
+		if ( mv->fonttype == mv_bitmap )
+		    depth = BDFDepth(mv->showfont.bdf);
 		else
-		    lscale = BDFDepth(mv->show);
+		    depth = BDFDepth(mv->showfont.piecemeal);
 		base.image_type = it_index;
-		scale = lscale==8?256:lscale==4?16:4;
+		scale = 1 << depth;
 		clut.clut_len = scale;
 		bg = view_bgcol;
 		fg = ( mv->perchar[i].selected ) ? selglyphcol : glyphcol;
-		for ( l=0; l<scale; ++l )
+		for ( int l=0; l<scale; ++l )
 		    clut.clut[l] =
 			COLOR_CREATE(
 			 COLOR_RED(bg) + ((int32_t) (l*(COLOR_RED(fg)-COLOR_RED(bg))))/(scale-1),
@@ -434,16 +435,16 @@ return;
 	    base.bytes_per_line = bdfc->bytes_per_line;
 	    base.width = width;
 	    base.height = height;
-	    if ( mv->pixelsize_set_by_window || mv->scale_index==SCALE_INDEX_NORMAL )
+	    if ( (mv->pixelsize_set_by_window || mv->scale_index==SCALE_INDEX_NORMAL) || true )
 		GDrawDrawGlyph(pixmap,&gi,NULL,x,y);
 	    else
 		GDrawDrawImageMagnified(pixmap, &gi, NULL, x,y,
 			(int) rint((width*mv_scales[mv->scale_index])),
 			(int) rint((height*mv_scales[mv->scale_index])));
 	}
-	if ( mv->bdf!=NULL ) BDFCharFree( bdfc );
+	if ( mv->fonttype == mv_bitmap ) BDFCharFree( bdfc );
     }
-    if ( si!=-1 && mv->bdf==NULL && MVShowGrid(mv) && mv->type==mv_kernwidth ) {
+    if ( si!=-1 && mv->fonttype == mv_spline && MVShowGrid(mv) && mv->type==mv_kernwidth ) {
 	x = mv->metrics[si].dx-mv->xoff;
 	if ( mv->right_to_left )
 	    x = mv->vwidth - x;
@@ -658,8 +659,8 @@ return;
 	r.width -= mv->metrics[i].xoff;
     } else
 	r.width += mv->metrics[i].xoff;
-    bdfc = mv->bdf==NULL ?  BDFPieceMealCheck(mv->show,mv->glyphs[i].sc->orig_pos) :
-			    mv->bdf->glyphs[mv->glyphs[i].sc->orig_pos];
+    bdfc = mv->fonttype == mv_spline ?  BDFPieceMealCheck(mv->showfont.piecemeal,mv->glyphs[i].sc->orig_pos) :
+			    mv->showfont.bdf->glyphs[mv->glyphs[i].sc->orig_pos];
     if ( bdfc==NULL )
 return;
     if ( bdfc->xmax+off+1>r.width ) r.width = bdfc->xmax+off+1;
@@ -686,7 +687,7 @@ static void MVDeselectChar(MetricsView *mv, int i) {
 
     mv->perchar[i].selected = false;
     if ( mv->perchar[i].name!=NULL )
-	GGadgetSetEnabled(mv->perchar[i].name,mv->bdf==NULL);
+	GGadgetSetEnabled(mv->perchar[i].name,mv->fonttype == mv_spline);
     MVRedrawI(mv,i,0,0);
 }
 
@@ -900,7 +901,7 @@ static void MVCreateFields(MetricsView *mv,int i) {
     gd.label = &label;
     gd.box = &small;
     gd.flags = gg_visible | gg_pos_in_pixels | gg_dontcopybox;
-    if ( mv->bdf==NULL )
+    if ( mv->fonttype == mv_spline )
 	gd.flags |= gg_enabled;
     mv->perchar[i].name = GLabelCreate(mv->gw,&gd,(void *) (intptr_t) i);
     if ( mv->perchar[i].selected )
@@ -939,7 +940,7 @@ static void MVSetSb(MetricsView *mv);
 static int MVSetVSb(MetricsView *mv);
 
 static int16_t MVCharWidth(MetricsView *mv, SplineChar *sc) {
-    BDFChar * bdfc = mv->bdf!=NULL ? mv->bdf->glyphs[sc->orig_pos] : BDFPieceMealCheck(mv->show,sc->orig_pos);
+    BDFChar * bdfc = mv->fonttype == mv_bitmap ? mv->showfont.bdf->glyphs[sc->orig_pos] : BDFPieceMealCheck(mv->showfont.piecemeal,sc->orig_pos);
     return bdfc->width;
 }
 
@@ -1086,10 +1087,10 @@ void MVRegenChar(MetricsView *mv, SplineChar *sc) {
 
     if( !sc->suspendMetricsViewEventPropagation )
     {
-	if ( mv->bdf==NULL && sc->orig_pos<mv->show->glyphcnt )
+	if ( mv->fonttype == mv_spline && sc->orig_pos<mv->showfont.piecemeal->glyphcnt )
 	{
-	    BDFCharFree(mv->show->glyphs[sc->orig_pos]);
-	    mv->show->glyphs[sc->orig_pos] = NULL;
+	    BDFCharFree(mv->showfont.piecemeal->glyphs[sc->orig_pos]);
+	    mv->showfont.piecemeal->glyphs[sc->orig_pos] = NULL;
 	}
     }
 
@@ -1110,26 +1111,32 @@ void MVRegenChar(MetricsView *mv, SplineChar *sc) {
 static void MVChangeDisplayFont(MetricsView *mv, BDFFont *bdf) {
     int i;
 
-    if ( mv->bdf==bdf )
+    if ( mv->fonttype == mv_bitmap && mv->showfont.bdf==bdf )
 return;
-    if ( (mv->bdf==NULL) != (bdf==NULL) ) {
-	for ( i=0; i<mv->max; ++i ) if ( mv->perchar[i].width!=NULL ) {
-	    GGadgetSetEnabled(mv->perchar[i].width,bdf==NULL);
-	    GGadgetSetEnabled(mv->perchar[i].lbearing,bdf==NULL);
-	    GGadgetSetEnabled(mv->perchar[i].rbearing,bdf==NULL);
-	    if ( i!=0 )
-		GGadgetSetEnabled(mv->perchar[i].kern,bdf==NULL);
-	}
+    if ( (mv->fonttype == mv_spline) != (bdf==NULL) ) {
+        for ( i=0; i<mv->max; ++i ) if ( mv->perchar[i].width!=NULL ) {
+            GGadgetSetEnabled(mv->perchar[i].width,bdf==NULL);
+            GGadgetSetEnabled(mv->perchar[i].lbearing,bdf==NULL);
+            GGadgetSetEnabled(mv->perchar[i].rbearing,bdf==NULL);
+            if ( i!=0 )
+            GGadgetSetEnabled(mv->perchar[i].kern,bdf==NULL);
+        }
     }
-    if ( mv->bdf==NULL ) {
-	BDFFontFree(mv->show);
-	mv->show = NULL;
-    } else if ( bdf==NULL ) {
-	BDFFontFree(mv->show);
-	mv->show = SplineFontPieceMeal(mv->sf,mv->layer,mv->ptsize,mv->dpi,
-				       MVGetSplineFontPieceMealFlags( mv ), NULL );
+    
+    /* Free the old font before switching */
+    if ( mv->fonttype == mv_spline ) {
+	    BDFFontFree(mv->showfont.piecemeal);
     }
-    mv->bdf = bdf;
+    /* Note: we don't free bitmap fonts as they're owned by the SplineFont */
+
+    if ( bdf==NULL ) {
+        mv->fonttype = mv_spline;
+        mv->showfont.piecemeal = SplineFontPieceMeal(mv->sf,mv->layer,mv->ptsize,mv->dpi,
+                        MVGetSplineFontPieceMealFlags( mv ), NULL );
+    } else {
+        mv->fonttype = mv_bitmap;
+        mv->showfont.bdf = bdf;
+    }
     MVRemetric(mv);
 }
 
@@ -1608,9 +1615,9 @@ static void MVToggleVertical(MetricsView *mv) {
 	if ( mv->pixelsize != size ) {
 	    mv->pixelsize = size;
 	    mv->dpi = 72;
-	    if ( mv->bdf==NULL ) {
-		BDFFontFree(mv->show);
-		mv->show = SplineFontPieceMeal(mv->sf,mv->layer,mv->pixelsize,72,
+	    if ( mv->fonttype == mv_spline ) {
+		BDFFontFree(mv->showfont.piecemeal);
+		mv->showfont.piecemeal = SplineFontPieceMeal(mv->sf,mv->layer,mv->pixelsize,72,
 					       MVGetSplineFontPieceMealFlags( mv ), NULL );
 	    }
 	}
@@ -1618,7 +1625,7 @@ static void MVToggleVertical(MetricsView *mv) {
     MVRemetric(mv);
 }
 
-static SplineChar *MVSCFromUnicode(MetricsView *mv, SplineFont *sf, EncMap *map, int ch,BDFFont *bdf) {
+static SplineChar *MVSCFromUnicode(MetricsView *mv, SplineFont *sf, EncMap *map, int ch) {
     int i;
     SplineChar *sc;
 
@@ -1631,8 +1638,8 @@ return( mv->sf->glyphs[ch-mv->fake_unicode_base] );
 return( NULL );
     else {
 	sc = SFMakeChar(sf,map,i);
-	if ( bdf!=NULL )
-	    BDFMakeChar(bdf,map,i);
+	if ( mv->fonttype == mv_bitmap )
+	    BDFMakeChar(mv->showfont.bdf,map,i);
     }
 return( sc );
 }
@@ -1945,7 +1952,7 @@ return;					/* Nothing changed */
     }
     for ( j=i; pt<ept; ++pt ) {
 	SplineChar *sc;
-	sc = MVSCFromUnicode(mv,mv->sf,mv->fv->b.map,*pt,mv->bdf);
+	sc = MVSCFromUnicode(mv,mv->sf,mv->fv->b.map,*pt);
 	if ( sc!=NULL )
 	    mv->chars[j++] = sc;
     }
@@ -2409,10 +2416,10 @@ return;
                 UnlinkThisReference(NULL, sc, mv->layer);
         }
 
-        if ( onlycopydisplayed && mv->bdf==NULL ) {
+        if ( onlycopydisplayed && mv->fonttype == mv_spline ) {
             SCClearAll(sc, mv->layer);
         } else if ( onlycopydisplayed ) {
-            BCClearAll(mv->bdf->glyphs[sc->orig_pos]);
+            BCClearAll(mv->showfont.bdf->glyphs[sc->orig_pos]);
         } else {
             SCClearAll(sc,mv->layer);
             for ( bdf=mv->sf->bitmaps; bdf!=NULL; bdf = bdf->next )
@@ -2433,7 +2440,7 @@ static void MVCut(GWindow gw, struct gmenuitem *mi, GEvent *e) {
         break;
         if ( i==-1 )
 return;
-        MVCopyChar(&mv->fv->b,mv->bdf,mv->glyphs[i].sc,ct_fullcopy);
+        MVCopyChar(&mv->fv->b,mv->fonttype == mv_bitmap ? mv->showfont.bdf : NULL,mv->glyphs[i].sc,ct_fullcopy);
         MVClear(gw, mi, e); /* mi & e are actually not used */
     }
 }
@@ -2450,7 +2457,7 @@ static void MVCopy(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)) 
         break;
         if ( i==-1 )
 return;
-        MVCopyChar(&mv->fv->b, mv->bdf, mv->glyphs[i].sc, ct_fullcopy);
+        MVCopyChar(&mv->fv->b, mv->fonttype == mv_bitmap ? mv->showfont.bdf : NULL, mv->glyphs[i].sc, ct_fullcopy);
     }
 }
 
@@ -2465,7 +2472,7 @@ return;
     break;
     if ( i==-1 )
 return;
-    MVCopyChar(&mv->fv->b, mv->bdf, mv->glyphs[i].sc, ct_reference);
+    MVCopyChar(&mv->fv->b, mv->fonttype == mv_bitmap ? mv->showfont.bdf : NULL, mv->glyphs[i].sc, ct_reference);
 }
 
 static void MVMenuCopyWidth(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
@@ -2517,7 +2524,7 @@ static void MVPaste(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e))
         break;
         if ( i==-1 )
 return;
-        PasteIntoMV(&mv->fv->b, mv->bdf, mv->glyphs[i].sc, true);
+        PasteIntoMV(&mv->fv->b, mv->fonttype == mv_bitmap ? mv->showfont.bdf : NULL, mv->glyphs[i].sc, true);
     }
 }
 
@@ -2923,9 +2930,9 @@ static void _MVMenuScale( MetricsView *mv, int mid ) {
 
     if ( mv->pixelsize_set_by_window ) {
 	mv->pixelsize = mv_scales[mv->scale_index]*(mv->vheight - 2);
-	if ( mv->bdf==NULL ) {
-	    BDFFontFree(mv->show);
-	    mv->show = SplineFontPieceMeal(mv->sf,mv->layer,mv->pixelsize,72,
+	if ( mv->fonttype == mv_spline ) {
+	    BDFFontFree(mv->showfont.piecemeal);
+	    mv->showfont.piecemeal = SplineFontPieceMeal(mv->sf,mv->layer,mv->pixelsize,72,
 					   MVGetSplineFontPieceMealFlags( mv ), NULL );
 	} else
 	    mv->pixelsize_set_by_window = false;
@@ -3062,11 +3069,12 @@ static void MVMenuAA(GWindow gw, struct gmenuitem *UNUSED(mi), GEvent *UNUSED(e)
     MetricsView *mv = (MetricsView *) GDrawGetUserData(gw);
 
     mv_antialias = mv->antialias = !mv->antialias;
-    mv->bdf = NULL;
-    BDFFontFree(mv->show);
-    mv->show = SplineFontPieceMeal(mv->sf, mv->layer, mv->ptsize, mv->dpi,
-                    MVGetSplineFontPieceMealFlags( mv ),
-                    NULL);
+    if (mv->fonttype == mv_spline) {
+        BDFFontFree(mv->showfont.piecemeal);
+        mv->showfont.piecemeal = SplineFontPieceMeal(mv->sf, mv->layer, mv->ptsize, mv->dpi,
+                        MVGetSplineFontPieceMealFlags( mv ),
+                        NULL);
+    }
     GDrawRequestExpose(mv->v,NULL,false);
 }
 
@@ -3075,11 +3083,12 @@ static void MVMenuRenderUsingHinting(GWindow gw, struct gmenuitem *UNUSED(mi), G
     MetricsView *mv = (MetricsView *) GDrawGetUserData(gw);
 
     mv->usehinting = !mv->usehinting;
-    mv->bdf = NULL;
-    BDFFontFree(mv->show);
-    mv->show = SplineFontPieceMeal(mv->sf, mv->layer, mv->ptsize, mv->dpi,
-				   MVGetSplineFontPieceMealFlags( mv ),
-				   NULL);
+    if (mv->fonttype == mv_spline) {
+        BDFFontFree(mv->showfont.piecemeal);
+        mv->showfont.piecemeal = SplineFontPieceMeal(mv->sf, mv->layer, mv->ptsize, mv->dpi,
+                    MVGetSplineFontPieceMealFlags( mv ),
+                    NULL);
+    }
     GDrawRequestExpose(mv->v,NULL,false);
 }
 
@@ -3118,7 +3127,7 @@ static void MVMenuShowBitmap(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)
     MetricsView *mv = (MetricsView *) GDrawGetUserData(gw);
     BDFFont *bdf = mi->ti.userdata;
 
-    if ( mv->bdf!=bdf ) {
+    if ( mv->fonttype != mv_bitmap || mv->showfont.bdf!=bdf ) {
         mv->pixelsize_set_by_window = bdf==NULL;
         if ( bdf!=NULL ) {
             mv->pixelsize = mv->ptsize = bdf->pixelsize;
@@ -3187,11 +3196,11 @@ return( true );
 	mv->ptsize = ptsize;
 	mv->dpi = dpi;
 	mv->pixelsize = rint( (ptsize*dpi)/72.0 );
-	if ( mv->bdf==NULL )
-	    BDFFontFree(mv->show);
-	mv->bdf = NULL;
-	mv->show = SplineFontPieceMeal(mv->sf,mv->layer,mv->ptsize,mv->dpi,
-				       MVGetSplineFontPieceMealFlags( mv ), NULL );
+	if ( mv->fonttype == mv_spline ) {
+	    BDFFontFree(mv->showfont.piecemeal);
+	    mv->showfont.piecemeal = SplineFontPieceMeal(mv->sf,mv->layer,mv->ptsize,mv->dpi,
+				        MVGetSplineFontPieceMealFlags( mv ), NULL );
+    }
 
 	MVReKern(mv);
 	MVSetVSb(mv);
@@ -3340,9 +3349,9 @@ static void MVMenuSizeWindow(GWindow mgw, struct gmenuitem *UNUSED(mi), GEvent *
     mv->pixelsize = mv_scales[mv->scale_index]*(mv->vheight - 2);
     mv->dpi = 72;
     mv->ptsize = mv->pixelsize;
-    if ( mv->bdf==NULL ) {
-        BDFFontFree(mv->show);
-        mv->show = SplineFontPieceMeal(
+    if ( mv->fonttype == mv_spline ) {
+        BDFFontFree(mv->showfont.piecemeal);
+        mv->showfont.piecemeal = SplineFontPieceMeal(
                         mv->sf, mv->layer, mv->pixelsize, 72,
 			MVGetSplineFontPieceMealFlags( mv ),
                         NULL);
@@ -3361,11 +3370,11 @@ return;
     else
         --(mv->ptsize);
     mv->pixelsize = rint( (mv->ptsize*mv->dpi)/72.0 );
-    if ( mv->bdf==NULL )
-        BDFFontFree(mv->show);
-    mv->bdf = NULL;
-    mv->show = SplineFontPieceMeal(mv->sf, mv->layer, mv->ptsize, mv->dpi,
-				   MVGetSplineFontPieceMealFlags( mv ), NULL);
+    if ( mv->fonttype == mv_spline ) {
+        BDFFontFree(mv->showfont.piecemeal);
+        mv->showfont.piecemeal = SplineFontPieceMeal(mv->sf, mv->layer, mv->ptsize, mv->dpi,
+                MVGetSplineFontPieceMealFlags( mv ), NULL);
+    }
 
     MVReKern(mv);
     MVSetVSb(mv);
@@ -3375,9 +3384,11 @@ static void MVMenuChangeLayer(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e
     MetricsView *mv = (MetricsView *) GDrawGetUserData(gw);
 
     mv->layer = mi->mid;
-    BDFFontFree(mv->show);
-    mv->show = SplineFontPieceMeal(mv->sf, mv->layer, mv->ptsize, mv->dpi,
-				   MVGetSplineFontPieceMealFlags( mv ), NULL);
+    if ( mv->fonttype == mv_spline ) {
+        BDFFontFree(mv->showfont.piecemeal);
+        mv->showfont.piecemeal = SplineFontPieceMeal(mv->sf, mv->layer, mv->ptsize, mv->dpi,
+                MVGetSplineFontPieceMealFlags( mv ), NULL);
+    }
     MVRemetric(mv);
     GDrawRequestExpose(mv->v,NULL,false);
 }
@@ -4025,11 +4036,11 @@ static void vwlistcheck(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
 	  break;
 	  case MID_AntiAlias:
 	    vwlist[i].ti.checked = mv->antialias;
-	    vwlist[i].ti.disabled = mv->bdf!=NULL;
+	    vwlist[i].ti.disabled = mv->fonttype == mv_bitmap;
 	  break;
 	  case MID_RenderUsingHinting:
 	    vwlist[i].ti.checked = mv->usehinting;
-	    vwlist[i].ti.disabled = mv->bdf!=NULL;
+	    vwlist[i].ti.disabled = mv->fonttype == mv_bitmap;
 	  break;
 	  case MID_SizeWindow:
 	    vwlist[i].ti.disabled = mv->pixelsize_set_by_window;
@@ -4055,7 +4066,7 @@ static void vwlistcheck(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
 	    vwlist[i].ti.disabled = mv->sf->layer_cnt<=2 || mv->sf->multilayer;
 	  break;
 	}
-    vwlist[i].ti.checked = mv->bdf==NULL;
+    vwlist[i].ti.checked = mv->fonttype == mv_spline;
     base = i+1;
     /* Reset dynamic menu items */
     for ( i=base; i<sizeof(vwlist)/sizeof(vwlist[0]); ++i ) {
@@ -4076,7 +4087,9 @@ static void vwlistcheck(GWindow gw, struct gmenuitem *mi, GEvent *UNUSED(e)) {
 			bdf->pixelsize, BDFDepth(bdf) );
 	    vwlist[i].ti.text = utf82u_copy(buffer);
 	    vwlist[i].ti.checkable = true;
-	    vwlist[i].ti.checked = bdf==mv->bdf;
+	    vwlist[i].ti.checked = bdf == NULL ?
+            mv->fonttype == mv_spline :
+            mv->fonttype == mv_bitmap && bdf == mv->showfont.bdf;
 	    vwlist[i].ti.userdata = bdf;
 	    vwlist[i].invoke = MVMenuShowBitmap;
 	    vwlist[i].ti.fg = vwlist[i].ti.bg = COLOR_DEFAULT;
@@ -4210,9 +4223,9 @@ return;
     if ( mv->pixelsize_set_by_window ) {
 	mv->ptsize = mv->pixelsize = mv_scales[mv->scale_index]*size;
 	mv->dpi = 72;
-	if ( mv->bdf==NULL ) {
-	    BDFFontFree(mv->show);
-	    mv->show = SplineFontPieceMeal(mv->sf,mv->layer,mv->ptsize,mv->dpi,
+	if ( mv->fonttype == mv_spline ) {
+	    BDFFontFree(mv->showfont.piecemeal);
+	    mv->showfont.piecemeal = SplineFontPieceMeal(mv->sf,mv->layer,mv->ptsize,mv->dpi,
 					   MVGetSplineFontPieceMealFlags( mv ), NULL );
 	}
     }
@@ -4385,8 +4398,8 @@ static void _MVSubVMouse(MetricsView *mv,GEvent *event) {
     for ( i=0; i<mv->glyphcnt; ++i ) {
 	y = mv->metrics[i].dy + mv->metrics[i].yoff;
 	x = xbase - mv->pixelsize*iscale/2 - mv->metrics[i].xoff;
-	if ( mv->bdf==NULL ) {
-	    BDFChar *bdfc = BDFPieceMealCheck(mv->show,mv->glyphs[i].sc->orig_pos);
+	if ( mv->fonttype == mv_spline ) {
+	    BDFChar *bdfc = BDFPieceMealCheck(mv->showfont.piecemeal,mv->glyphs[i].sc->orig_pos);
 	    if ( event->u.mouse.x >= x+bdfc->xmin &&
 		event->u.mouse.x <= x+bdfc->xmax &&
 		event->u.mouse.y <= (y+as)-bdfc->ymin &&
@@ -4444,7 +4457,7 @@ static void _MVSubVMouse(MetricsView *mv,GEvent *event) {
 
     if ( event->type != et_mousemove || !mv->pressed ) {
 	int ct = -1;
-	if ( mv->bdf!=NULL ||
+	if ( mv->fonttype == mv_bitmap ||
 		( mv->type==mv_kernonly && !onkern ) ||
 		( mv->type==mv_widthonly && !onwidth )) {
 	    if ( mv->cursor!=ct_mypointer )
@@ -4474,7 +4487,7 @@ static void _MVSubVMouse(MetricsView *mv,GEvent *event) {
 	if ( sc!=NULL )
 	    SCPreparePopup(mv->gw,sc,mv->fv->b.map->remap,mv->fv->b.map->backmap[sc->orig_pos],sc->unicodeenc);
 /* Don't allow any editing when displaying a bitmap font */
-    } else if ( event->type == et_mousedown && mv->bdf==NULL ) {
+    } else if ( event->type == et_mousedown && mv->fonttype == mv_spline ) {
 	CVPaletteDeactivate();
 	if ( sc!=NULL ) {
 	    for ( j=0; j<mv->glyphcnt; ++j )
@@ -4528,7 +4541,7 @@ static void _MVSubVMouse(MetricsView *mv,GEvent *event) {
 	    }
 	} else if ( mv->type!=mv_kernonly ) {
 	    int olda = mv->activeoff;
-	    BDFChar *bdfc = BDFPieceMealCheck(mv->show,mv->glyphs[i].sc->orig_pos);
+	    BDFChar *bdfc = BDFPieceMealCheck(mv->showfont.piecemeal,mv->glyphs[i].sc->orig_pos);
 	    mv->activeoff = diff;
 	    MVRedrawI(mv,i,bdfc->xmin+olda,bdfc->xmax+olda);
 	}
@@ -4537,10 +4550,10 @@ static void _MVSubVMouse(MetricsView *mv,GEvent *event) {
 	mv->pressed = false; mv->activeoff = 0;
 	mv->pressedwidth = mv->pressedkern = false;
 	if ( within==-1 ) within = i;
-	if ( mv->bdf==NULL )
+	if ( mv->fonttype == mv_spline )
 	    CharViewCreate(mv->glyphs[within].sc,mv->fv,-1);
 	else
-	    BitmapViewCreate(mv->bdf->glyphs[mv->glyphs[within].sc->orig_pos],mv->bdf,mv->fv,-1);
+	    BitmapViewCreate(mv->showfont.bdf->glyphs[mv->glyphs[within].sc->orig_pos],mv->showfont.bdf,mv->fv,-1);
 	if ( mv->showgrid==mv_hidemovinggrid )
 	    GDrawRequestExpose(mv->v,NULL,false);
     } else if ( event->type == et_mouseup && mv->pressed ) {
@@ -4580,7 +4593,7 @@ static void _MVSubVMouse(MetricsView *mv,GEvent *event) {
 	}
 	mv->pressedwidth = false;
 	mv->pressedkern = false;
-    } else if ( event->type == et_mouseup && mv->bdf!=NULL && within!=-1 ) {
+    } else if ( event->type == et_mouseup && mv->fonttype == mv_bitmap && within!=-1 ) {
 	for ( j=0; j<mv->glyphcnt; ++j )
 	    if ( j!=within && mv->perchar[j].selected )
 		MVDeselectChar(mv,j);
@@ -4623,8 +4636,8 @@ return;
 	if ( mv->right_to_left )
 	    x = mv->vwidth - x - mv->metrics[i].dwidth - mv->metrics[i].kernafter;
 	y = ybase - mv->metrics[i].yoff;
-	if ( mv->bdf==NULL ) {
-	    bdfc = BDFPieceMealCheck(mv->show,mv->glyphs[i].sc->orig_pos);
+	if ( mv->fonttype == mv_spline ) {
+	    bdfc = BDFPieceMealCheck(mv->showfont.piecemeal,mv->glyphs[i].sc->orig_pos);
 	    if ( event->u.mouse.x >= x+bdfc->xmin &&
 		event->u.mouse.x <= x+bdfc->xmax &&
 		event->u.mouse.y <= y-bdfc->ymin &&
@@ -4719,7 +4732,7 @@ return;
 
     if ( event->type != et_mousemove || !mv->pressed ) {
 	int ct = -1;
-	if ( mv->bdf!=NULL ||
+	if ( mv->fonttype == mv_bitmap ||
 		( mv->type==mv_kernonly && !onkern ) ||
 		( mv->type==mv_widthonly && !onwidth )) {
 	    if ( mv->cursor!=ct_mypointer )
@@ -4749,7 +4762,7 @@ return;
 	if ( sc!=NULL )
 	    SCPreparePopup(mv->gw,sc,mv->fv->b.map->remap,mv->fv->b.map->backmap[sc->orig_pos],sc->unicodeenc);
 /* Don't allow any editing when displaying a bitmap font */
-    } else if ( event->type == et_mousedown && mv->bdf==NULL ) {
+    } else if ( event->type == et_mousedown && mv->fonttype == mv_spline ) {
 	CVPaletteDeactivate();
 	if ( sc!=NULL ) {
 	    for ( j=0; j<mv->glyphcnt; ++j )
@@ -4780,7 +4793,7 @@ return;
 	if ( mv->pressedwidth ) {
 	    int ow = mv->metrics[i].dwidth;
 	    if ( mv->right_to_left ) diff = -diff;
-	    bdfc = BDFPieceMealCheck(mv->show,mv->glyphs[i].sc->orig_pos);
+	    bdfc = BDFPieceMealCheck(mv->showfont.piecemeal,mv->glyphs[i].sc->orig_pos);
 	    mv->metrics[i].dwidth = bdfc->width + diff;
 	    if ( ow!=mv->metrics[i].dwidth ) {
 		for ( j=i+1; j<mv->glyphcnt; ++j )
@@ -4811,7 +4824,7 @@ return;
 	    }
 	} else if ( mv->type!=mv_kernonly ) {
 	    int olda = mv->activeoff;
-	    bdfc = BDFPieceMealCheck(mv->show,mv->glyphs[i].sc->orig_pos);
+	    bdfc = BDFPieceMealCheck(mv->showfont.piecemeal,mv->glyphs[i].sc->orig_pos);
 	    mv->activeoff = diff;
 	    MVRedrawI(mv,i,bdfc->xmin+olda,bdfc->xmax+olda);
 	}
@@ -4820,10 +4833,10 @@ return;
 	mv->pressed = false; mv->activeoff = 0;
 	mv->pressedwidth = mv->pressedkern = false;
 	if ( within==-1 ) within = i;
-	if ( mv->bdf==NULL )
+	if ( mv->fonttype == mv_spline )
 	    CharViewCreate(mv->glyphs[within].sc,mv->fv,-1);
 	else
-	    BitmapViewCreate(mv->bdf->glyphs[mv->glyphs[within].sc->orig_pos],mv->bdf,mv->fv,-1);
+	    BitmapViewCreate(mv->showfont.bdf->glyphs[mv->glyphs[within].sc->orig_pos],mv->showfont.bdf,mv->fv,-1);
 	if ( mv->showgrid==mv_hidemovinggrid )
 	    GDrawRequestExpose(mv->v,NULL,false);
     } else if ( event->type == et_mouseup && mv->pressed ) {
@@ -4867,7 +4880,7 @@ return;
 	mv->pressedkern = false;
 	if ( mv->showgrid==mv_hidemovinggrid )
 	    GDrawRequestExpose(mv->v,NULL,false);
-    } else if ( event->type == et_mouseup && mv->bdf!=NULL && within!=-1 ) {
+    } else if ( event->type == et_mouseup && mv->fonttype == mv_bitmap && within!=-1 ) {
 	for ( j=0; j<mv->glyphcnt; ++j )
 	    if ( j!=within && mv->perchar[j].selected )
 		MVDeselectChar(mv,j);
@@ -5298,7 +5311,6 @@ MetricsView *MetricsViewCreate(FontView *fv,SplineChar *sc,BDFFont *bdf) {
 
     mv->fv = fv;
     mv->sf = fv->b.sf;
-    mv->bdf = bdf;
     mv->showgrid = mvshowgrid;
     mv->antialias = mv_antialias;
     mv->scale_index = SCALE_INDEX_NORMAL;
@@ -5308,6 +5320,16 @@ MetricsView *MetricsViewCreate(FontView *fv,SplineChar *sc,BDFFont *bdf) {
     mv->type = mv_type;
     mv->pixelsize_set_by_window = true;
     mv->dpi = 72;
+    mv->ptsize = 0;  /* Will be set by MVResize */
+
+    if (bdf == NULL) {
+        mv->fonttype = mv_spline;
+        // This will be set by MVResize below
+        mv->showfont.piecemeal = NULL;
+    } else {
+        mv->fonttype = mv_bitmap;
+        mv->showfont.bdf = bdf;
+    }
 
     /* Start with fast internal shaper for initial presentation, defer the 
        full-blown shaper until the Metrics window has been mapped. */
@@ -5484,7 +5506,9 @@ void MetricsViewFree(MetricsView *mv) {
 	    free(mv->scriptlangs[i].userdata );
 	GTextInfoListFree(mv->scriptlangs);
     }
-    BDFFontFree(mv->show);
+    if (mv->fonttype == mv_spline) {
+        BDFFontFree(mv->showfont.piecemeal);
+    }
     /* the fields will free themselves */
     free(mv->chars);
     free(mv->glyphs);

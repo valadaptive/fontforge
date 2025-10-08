@@ -370,15 +370,20 @@ struct metrics_ui {
     GGadget* updownkparray[10]; /* Cherry picked elements from width...kern allowing up/down key navigation */
 };
 
+enum mv_fonttype { mv_bitmap, mv_spline };
+
 typedef struct metricsview {
     struct fontview *fv;
     SplineFont *sf;
-    int pixelsize;		/* If the user has manually requested a pixelsize */
+    int ptsize, dpi, pixelsize;		/* If the user has manually requested a pixelsize */
 				/*  then rasterize at that size no matter how large */
 			        /*  the font is zoomed. For non-user requesed sizes */
 			        /*  this is the pixelsize * zoom-factor */
-    BDFFont *bdf;		/* We can also see metric info on a bitmap font */
-    BDFFont *show;		/*  Or the rasterized version of the outline font */
+    enum mv_fonttype fonttype;
+    union {
+        BDFFont *bdf;		/* We can also see metric info on a bitmap font */
+        BDFFont *piecemeal;		/*  Or the rasterized version of the outline font */
+    } showfont;
     GWindow gw, v;
     GFont *font;
     GGadget *hsb, *vsb, *mb, *text, *textPrev, *textNext, *script, *features, *subtable_list;
@@ -422,7 +427,6 @@ typedef struct metricsview {
     int layer;
     int fake_unicode_base;
     GIC *gwgic;
-    int ptsize, dpi;
     int ybaseline;
     int oldscript, oldlang;
     cpp_IShaper* shaper;
