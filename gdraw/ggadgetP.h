@@ -617,7 +617,6 @@ extern void _GButton_SetDefault(GGadget *g,int32_t is_default);
 extern void _GButtonInit(void);
 extern void GListMarkDraw(GWindow pixmap,int x, int y, int height, enum gadget_state state );
 extern const char* const* _GGadget_GetImagePath(void);
-extern int _GGadget_ImageInCache(GImage *image);
 
 extern GResInfo ggadget_ri, listmark_ri;
 

@@ -350,18 +350,6 @@ const char* const* _GGadget_GetImagePath(void) {
     return (const char* const*) imagepath;
 }
 
-int _GGadget_ImageInCache(GImage *image) {
-    int i;
-    GImageCacheBucket *bucket;
-
-    for ( i=0; i<IC_SIZE; ++i ) {
-	for ( bucket=imagecache[i]; bucket!=NULL; bucket=bucket->next )
-	    if ( bucket->image==image )
-return( true );
-    }
-return( false );
-}
-
 static GImage *GadgetNormalizeImageFilenames(const char *inname, char **relname, char **absname) {
     int l, k;
     char *home = GFileGetHomeDir(), *path;
