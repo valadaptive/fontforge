@@ -121,18 +121,18 @@ static GClut cluts[2*USEFUL_MAX] = {
     { 2, 0, COLOR_UNKNOWN, GCLUT_CLUT_EMPTY }
 };
 static struct _GImage bases[2*USEFUL_MAX] = {
-    { it_mono, 0,16,12,2, (uint8_t *) image_data, &cluts[0], COLOR_UNKNOWN },
-    { it_mono, 0,16,12,2, (uint8_t *) image_data, &cluts[1], COLOR_UNKNOWN },
-    { it_mono, 0,16,12,2, (uint8_t *) image_data, &cluts[2], COLOR_UNKNOWN },
-    { it_mono, 0,16,12,2, (uint8_t *) image_data, &cluts[3], COLOR_UNKNOWN },
-    { it_mono, 0,16,12,2, (uint8_t *) image_data, &cluts[4], COLOR_UNKNOWN },
-    { it_mono, 0,16,12,2, (uint8_t *) image_data, &cluts[5], COLOR_UNKNOWN },
-    { it_mono, 0,16,12,2, (uint8_t *) image_data, &cluts[6], COLOR_UNKNOWN },
-    { it_mono, 0,16,12,2, (uint8_t *) image_data, &cluts[7], COLOR_UNKNOWN },
-    { it_mono, 0,16,12,2, (uint8_t *) image_data, &cluts[8], COLOR_UNKNOWN },
-    { it_mono, 0,16,12,2, (uint8_t *) image_data, &cluts[9], COLOR_UNKNOWN },
-    { it_mono, 0,16,12,2, (uint8_t *) image_data, &cluts[10], COLOR_UNKNOWN },
-    { it_mono, 0,16,12,2, (uint8_t *) image_data, &cluts[11], COLOR_UNKNOWN }
+    { it_mono, 16,12,2, (uint8_t *) image_data, &cluts[0], COLOR_UNKNOWN },
+    { it_mono, 16,12,2, (uint8_t *) image_data, &cluts[1], COLOR_UNKNOWN },
+    { it_mono, 16,12,2, (uint8_t *) image_data, &cluts[2], COLOR_UNKNOWN },
+    { it_mono, 16,12,2, (uint8_t *) image_data, &cluts[3], COLOR_UNKNOWN },
+    { it_mono, 16,12,2, (uint8_t *) image_data, &cluts[4], COLOR_UNKNOWN },
+    { it_mono, 16,12,2, (uint8_t *) image_data, &cluts[5], COLOR_UNKNOWN },
+    { it_mono, 16,12,2, (uint8_t *) image_data, &cluts[6], COLOR_UNKNOWN },
+    { it_mono, 16,12,2, (uint8_t *) image_data, &cluts[7], COLOR_UNKNOWN },
+    { it_mono, 16,12,2, (uint8_t *) image_data, &cluts[8], COLOR_UNKNOWN },
+    { it_mono, 16,12,2, (uint8_t *) image_data, &cluts[9], COLOR_UNKNOWN },
+    { it_mono, 16,12,2, (uint8_t *) image_data, &cluts[10], COLOR_UNKNOWN },
+    { it_mono, 16,12,2, (uint8_t *) image_data, &cluts[11], COLOR_UNKNOWN }
 };
 static GImage blanks[2*USEFUL_MAX] = {
     { 0, { &bases[0] }, NULL },

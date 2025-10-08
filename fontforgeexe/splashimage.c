@@ -43765,7 +43765,7 @@ static uint8_t splashimage0_data[] =
 
 static struct _GImage splashimage0_base = {
     it_true,
-    0,379,375,1516,
+    379,375,1516,
     (uint8_t *) splashimage0_data,
     NULL,
     0xffffffff

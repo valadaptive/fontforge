@@ -71,7 +71,7 @@ static GClut textmake_clut = { 4, 0, 0,
 
 static struct _GImage textmake_base = {
     it_index,
-    0,16,16,16,
+    16,16,16,
     (uint8_t *) textmake_data,
     &textmake_clut,
     0
@@ -117,7 +117,7 @@ static GClut textc0_clut = { 5, 0, 0,
     
 static struct _GImage textc0_base = {
     it_index,
-    0,16,16,16,
+    16,16,16,
     (uint8_t *) textc0_data,
     &textc0_clut,
     0
@@ -163,7 +163,7 @@ static GClut image0_clut = { 8, 0, 0,
 
 static struct _GImage image0_base = {
     it_index,
-    2081,16,16,16,
+    16,16,16,
     (uint8_t *) image0_data,
     &image0_clut,
     0
@@ -206,7 +206,7 @@ static uint8_t video0_data[] = {
 
 static struct _GImage video0_base = {
     it_index,
-    2081,16,16,16,
+    16,16,16,
     (uint8_t *) video0_data,
     &image0_clut,
     0
@@ -249,7 +249,7 @@ static uint8_t core0_data[] = {
 
 static struct _GImage core0_base = {
     it_index,
-    0,16,16,16,
+    16,16,16,
     (uint8_t *) core0_data,
     &textmake_clut,
     0
@@ -292,7 +292,7 @@ static uint8_t textplain0_data[] = {
 
 static struct _GImage textplain0_base = {
     it_index,
-    0,16,16,16,
+    16,16,16,
     (uint8_t *) textplain0_data,
     &textc0_clut,
     0
@@ -335,7 +335,7 @@ static uint8_t dir0_data[] = {
 
 static struct _GImage dir0_base = {
     it_index,
-    0,16,16,16,
+    16,16,16,
     (uint8_t *) dir0_data,
     &textc0_clut,
     0
@@ -378,7 +378,7 @@ static uint8_t updir0_data[] = {
 
 static struct _GImage updir0_base = {
     it_index,
-    0,16,16,16,
+    16,16,16,
     (uint8_t *) updir0_data,
     &textc0_clut,
     0
@@ -421,7 +421,7 @@ static uint8_t object0_data[] = {
 
 static struct _GImage object0_base = {
     it_index,
-    0,16,16,16,
+    16,16,16,
     (uint8_t *) object0_data,
     &textmake_clut,
     0
@@ -464,7 +464,7 @@ static uint8_t texthtml0_data[] = {
 
 static struct _GImage texthtml0_base = {
     it_index,
-    0,16,16,16,
+    16,16,16,
     (uint8_t *) texthtml0_data,
     &textc0_clut,
     0
@@ -507,7 +507,7 @@ static uint8_t textxml0_data[] = {
 
 static struct _GImage textxml0_base = {
     it_index,
-    2081,16,16,16,
+    16,16,16,
     (uint8_t *) textxml0_data,
     &textc0_clut,
     0
@@ -550,7 +550,7 @@ static uint8_t textcss0_data[] = {
 
 static struct _GImage textcss0_base = {
     it_index,
-    2081,16,16,16,
+    16,16,16,
     (uint8_t *) textcss0_data,
     &textc0_clut,
     0
@@ -596,7 +596,7 @@ static GClut textjava0_clut = { 6, 0, 0,
 
 static struct _GImage textjava0_base = {
     it_index,
-    2081,16,16,16,
+    16,16,16,
     (uint8_t *) textjava0_data,
     &textjava0_clut,
     0
@@ -639,7 +639,7 @@ static uint8_t textbdf0_data[] = {
 
 static struct _GImage textbdf0_base = {
     it_index,
-    2081,16,16,16,
+    16,16,16,
     (uint8_t *) textbdf0_data,
     &textc0_clut,
     0
@@ -682,7 +682,7 @@ static uint8_t textfontps0_data[] = {
 
 static struct _GImage textfontps0_base = {
     it_index,
-    2081,16,16,16,
+    16,16,16,
     (uint8_t *) textfontps0_data,
     &textc0_clut,
     0
@@ -725,7 +725,7 @@ static uint8_t textfontsfd0_data[] = {
 
 static struct _GImage textfontsfd0_base = {
     it_index,
-    2081,16,16,16,
+    16,16,16,
     (uint8_t *) textfontsfd0_data,
     &textc0_clut,
     0
@@ -768,7 +768,7 @@ static uint8_t textps0_data[] = {
 
 static struct _GImage textps0_base = {
     it_index,
-    2081,16,16,16,
+    16,16,16,
     (uint8_t *) textps0_data,
     &textc0_clut,
     0
@@ -811,7 +811,7 @@ static uint8_t unknown0_data[] = {
 
 static struct _GImage unknown0_base = {
     it_index,
-    0,16,16,16,
+    16,16,16,
     (uint8_t *) unknown0_data,
     &textc0_clut,
     0
@@ -854,7 +854,7 @@ static uint8_t audio0_data[] = {
 
 static struct _GImage audio0_base = {
     it_index,
-    2081,16,16,16,
+    16,16,16,
     (uint8_t *) audio0_data,
     &textc0_clut,
     0
@@ -885,7 +885,7 @@ static GClut ttf0_clut = { 2, 0, 1,
 
 static struct _GImage ttf0_base = {
     it_mono,
-    2069,16,16,2,
+    16,16,2,
     (uint8_t *) ttf0_data,
     &ttf0_clut,
     1
@@ -896,7 +896,7 @@ static GClut macttf_clut = { 2, 0, 1,
 
 static struct _GImage macttf0_base = {
     it_mono,
-    2069,16,16,2,
+    16,16,2,
     (uint8_t *) ttf0_data,
     &macttf_clut,
     1
@@ -923,7 +923,7 @@ static uint8_t cid0_data[] = {
 
 static struct _GImage cid0_base = {
     it_mono,
-    2071,11,16,2,
+    11,16,2,
     (uint8_t *) cid0_data,
     &ttf0_clut,
     1
@@ -950,7 +950,7 @@ static uint8_t mac_data[] = {
 
 static struct _GImage mac_base = {
     it_mono,
-    15420,16,16,2,
+    16,16,2,
     (uint8_t *) mac_data,
     &ttf0_clut,
     1
@@ -997,7 +997,7 @@ static GClut tar0_clut = { 16, 0, 0,
 
 static struct _GImage tar0_base = {
     it_index,
-    0,16,16,16,
+    16,16,16,
     (uint8_t *) tar0_data,
     &tar0_clut,
     0x0
@@ -1044,7 +1044,7 @@ static GClut compressed0_clut = { 16, 0, 0,
 
 static struct _GImage compressed0_base = {
     it_index,
-    0,16,16,16,
+    16,16,16,
     (uint8_t *) compressed0_data,
     &compressed0_clut,
     0x0
@@ -1106,7 +1106,7 @@ static GClut homefolder_clut = { 3, 1, 0,
 
 static struct _GImage homefolder_base = {
     it_index,
-    15420,20,16,20,
+    20,16,20,
     (uint8_t *) homefolder_data,
     &homefolder_clut,
     0
@@ -1168,7 +1168,7 @@ static GClut configtool0_clut = { 130, 1, 0,
 
 static struct _GImage configtool0_base = {
     it_index,
-    15420,16,16,16,
+    16,16,16,
     (uint8_t *) configtool0_data,
     &configtool0_clut,
     0
@@ -1214,7 +1214,7 @@ static GClut bookmark0_clut = { 7, 1, 0,
 
 static struct _GImage bookmark0_base = {
     it_index,
-    15420,16,16,16,
+    16,16,16,
     (uint8_t *) bookmark0_data,
     &bookmark0_clut,
     0
@@ -1257,7 +1257,7 @@ static uint8_t nobookmark0_data[] = {
 
 static struct _GImage nobookmark0_base = {
     it_index,
-    15420,16,16,16,
+    16,16,16,
     (uint8_t *) nobookmark0_data,
     &bookmark0_clut,
     0
@@ -1306,7 +1306,7 @@ static GClut back0_clut = { 10, 1, 0,
 
 static struct _GImage back0_base = {
     it_index,
-    15420,16,16,16,
+    16,16,16,
     (uint8_t *) back0_data,
     &back0_clut,
     0
@@ -1353,7 +1353,7 @@ static GClut forward0_clut = { 11, 1, 0,
 
 static struct _GImage forward0_base = {
     it_index,
-    15420,16,16,16,
+    16,16,16,
     (uint8_t *) forward0_data,
     &forward0_clut,
     0x0

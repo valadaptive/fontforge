@@ -42,7 +42,6 @@ static uint8_t splashimage0_data[] = {{
 
 static struct _GImage splashimage0_base = {{
     it_true,
-    0,
     {width},
     {height},
     {bytes_per_line},
