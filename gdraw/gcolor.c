@@ -135,18 +135,18 @@ static struct _GImage bases[2*USEFUL_MAX] = {
     { it_mono, 16,12,2, (uint8_t *) image_data, &cluts[11], COLOR_UNKNOWN }
 };
 static GImage blanks[2*USEFUL_MAX] = {
-    { 0, { &bases[0] }, NULL },
-    { 0, { &bases[1] }, NULL },
-    { 0, { &bases[2] }, NULL },
-    { 0, { &bases[3] }, NULL },
-    { 0, { &bases[4] }, NULL },
-    { 0, { &bases[5] }, NULL },
-    { 0, { &bases[6] }, NULL },
-    { 0, { &bases[7] }, NULL },
-    { 0, { &bases[8] }, NULL },
-    { 0, { &bases[9] }, NULL },
-    { 0, { &bases[10] }, NULL },
-    { 0, { &bases[11] }, NULL }
+    { &bases[0], NULL },
+    { &bases[1], NULL },
+    { &bases[2], NULL },
+    { &bases[3], NULL },
+    { &bases[4], NULL },
+    { &bases[5], NULL },
+    { &bases[6], NULL },
+    { &bases[7], NULL },
+    { &bases[8], NULL },
+    { &bases[9], NULL },
+    { &bases[10], NULL },
+    { &bases[11], NULL }
 };
 /* ************************************************************************** */
 struct hslrgba recent_cols[USEFUL_MAX+1];
