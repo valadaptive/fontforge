@@ -12260,13 +12260,6 @@ static void _CharViewCreate(CharView *cv, SplineChar *sc, FontView *fv,int enc,i
     cv->nfh = as+ds; cv->nas = as;
 
     cv->height = pos.height; cv->width = pos.width;
-    cv->gi.image = calloc(1,sizeof(struct _GImage));
-    cv->gi.image->image_type = it_mono;
-    cv->gi.image->clut = calloc(1,sizeof(GClut));
-    cv->gi.image->clut->trans_index = cv->gi.image->trans = 0;
-    cv->gi.image->clut->clut_len = 2;
-    cv->gi.image->clut->clut[0] = view_bgcol;
-    cv->gi.image->clut->clut[1] = fillcol;
     cv->b1_tool = cv_b1_tool; cv->cb1_tool = cv_cb1_tool;
     cv->b1_tool_old = cv->b1_tool;
     cv->b2_tool = cv_b2_tool; cv->cb2_tool = cv_cb2_tool;
@@ -12639,8 +12632,6 @@ void CharViewFree(CharView *cv) {
 	GDrawDestroyWindow(cv->ruler_linger_w);
 	cv->ruler_linger_w = NULL;
     }
-    free(cv->gi.image->clut);
-    free(cv->gi.image);
 #if HANYANG
     if ( cv->jamodisplay!=NULL )
 	Disp_DoFinish(cv->jamodisplay,true);
