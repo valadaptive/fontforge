@@ -238,14 +238,12 @@ const char *GdkEventName(int code) {
         case GDK_TOUCH_CANCEL:
             return "GDK_TOUCH_CANCEL";
             break;
-#ifdef GGDKDRAW_GDK_3_20
         case GDK_TOUCHPAD_SWIPE:
             return "GDK_TOUCHPAD_SWIPE";
             break;
         case GDK_TOUCHPAD_PINCH:
             return "GDK_TOUCHPAD_PINCH";
             break;
-#endif
         case GDK_EVENT_LAST:
             return "GDK_EVENT_LAST";
             break;

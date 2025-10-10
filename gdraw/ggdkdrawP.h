@@ -37,14 +37,6 @@
 #include "fontP.h"
 #include "gdrawP.h"
 
-#if (((GDK_MAJOR_VERSION == 3) && (GDK_MINOR_VERSION >= 22)) || (GDK_MAJOR_VERSION > 3))
-#    define GGDKDRAW_GDK_3_22
-#endif
-
-#if (((GDK_MAJOR_VERSION == 3) && (GDK_MINOR_VERSION >= 20)) || (GDK_MAJOR_VERSION > 3))
-#    define GGDKDRAW_GDK_3_20
-#endif
-
 #define GGDKDRAW_ADDREF(x) do { \
     assert((x)->reference_count >= 0); \
     (x)->reference_count++; \
@@ -260,9 +252,7 @@ struct ggdkwindow { /* :GWindow */
     char *window_title;
     GCursor current_cursor;
 
-#ifdef GGDKDRAW_GDK_3_22
     GdkDrawingContext *drawing_ctx;
-#endif
     cairo_region_t *expose_region;
     cairo_surface_t *cs;
     cairo_t *cc;

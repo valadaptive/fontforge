@@ -622,11 +622,7 @@ void _GGDKDraw_CleanupAutoPaint(GGDKDisplay *gdisp) {
 #if !defined(GDK_WINDOWING_WIN32) && !defined(GDK_WINDOWING_QUARTZ)
             if (gw->cs != NULL) {
                 assert(gw->expose_region != NULL);
-#ifdef GGDKDRAW_GDK_3_22
                 cairo_t *cc = cairo_reference(gdk_drawing_context_get_cairo_context(gw->drawing_ctx));
-#else
-                cairo_t *cc = gdk_cairo_create(gw->w);
-#endif
 
                 gdk_cairo_region(cc, gw->expose_region);
                 cairo_clip(cc);
@@ -642,11 +638,7 @@ void _GGDKDraw_CleanupAutoPaint(GGDKDisplay *gdisp) {
                 gw->cs = NULL;
             }
 #endif
-#ifdef GGDKDRAW_GDK_3_22
             gdk_window_end_draw_frame(gw->w, gw->drawing_ctx);
-#else
-            gdk_window_end_paint(gw->w);
-#endif
             gw->is_in_paint = false;
         }
         gdisp->dirty_window = NULL;

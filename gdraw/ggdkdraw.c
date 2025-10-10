@@ -355,21 +355,12 @@ static void _GGDKDraw_CallEHChecked(GGDKWindow gw, GEvent *event, int (*eh)(GWin
 }
 
 static GdkDevice *_GGDKDraw_GetPointer(GGDKDisplay *gdisp) {
-#ifdef GGDKDRAW_GDK_3_20
     GdkSeat *seat = gdk_display_get_default_seat(gdisp->display);
     if (seat == NULL) {
         return NULL;
     }
 
     return gdk_seat_get_pointer(seat);
-#else
-    GdkDeviceManager *manager = gdk_display_get_device_manager(gdisp->display);
-    if (manager == NULL) {
-        return NULL;
-    }
-
-    return gdk_device_manager_get_client_pointer(manager);
-#endif
 }
 
 static void _GGDKDraw_CenterWindowOnScreen(GGDKWindow gw) {
@@ -377,24 +368,11 @@ static void _GGDKDraw_CenterWindowOnScreen(GGDKWindow gw) {
     GdkRectangle work_area, window_size;
     int x, y;
 
-#ifdef GGDKDRAW_GDK_3_22
     GdkMonitor *monitor;
 
     gdk_device_get_position(_GGDKDraw_GetPointer(gdisp), NULL, &x, &y);
     monitor = gdk_display_get_monitor_at_point(gdisp->display, x, y);
     gdk_monitor_get_workarea(monitor, &work_area);
-#else
-    GdkScreen *pointer_screen;
-    int monitor = 0;
-
-    gdk_device_get_position(_GGDKDraw_GetPointer(gdisp), &pointer_screen, &x, &y);
-
-    if (pointer_screen == gdisp->screen) { // Ensure it's on the same screen
-        monitor = gdk_screen_get_monitor_at_point(gdisp->screen, x, y);
-    }
-
-    gdk_screen_get_monitor_workarea(pointer_screen, monitor, &work_area);
-#endif // GGDKDRAW_GDK_3_22
 
     gdk_window_get_frame_extents(gw->w, &window_size);
     gw->pos.x = (work_area.width - window_size.width) / 2 + work_area.x;
@@ -1066,11 +1044,7 @@ static void _GGDKDraw_DispatchEvent(GdkEvent *event, gpointer data) {
             // never happen any more.
             assert(gw->cc == NULL);
 
-#ifdef GGDKDRAW_GDK_3_22
             gw->drawing_ctx = gdk_window_begin_draw_frame(w, reg);
-#else
-            gdk_window_begin_paint_region(w, reg);
-#endif
             gw->is_in_paint = true;
             gdisp->dirty_window = gw;
 
@@ -1091,11 +1065,7 @@ static void _GGDKDraw_DispatchEvent(GdkEvent *event, gpointer data) {
                 gw->cc = cairo_create(gw->cs);
                 gw->expose_region = cairo_region_reference(reg);
 #else
-#ifdef GGDKDRAW_GDK_3_22
                 gw->cc = cairo_reference(gdk_drawing_context_get_cairo_context(gw->drawing_ctx));
-#else
-                gw->cc = gdk_cairo_create(gw->w);
-#endif
 #endif
                 gdk_cairo_region(gw->cc, reg);
                 cairo_clip(gw->cc);
@@ -2007,38 +1977,17 @@ static int GGDKDrawSelectionHasOwner(GDisplay *disp, enum selnames sn) {
 
 static void GGDKDrawPointerUngrab(GDisplay *gdisp) {
     Log(LOGDEBUG, " ");
-#ifndef GGDKDRAW_GDK_3_20
-    GdkDevice *pointer = _GGDKDraw_GetPointer((GGDKDisplay *)gdisp);
-    if (pointer == NULL) {
-        return;
-    }
-
-    gdk_device_ungrab(pointer, GDK_CURRENT_TIME);
-#else
     GdkSeat *seat = gdk_display_get_default_seat(((GGDKDisplay *)gdisp)->display);
     if (seat == NULL) {
         return;
     }
 
     gdk_seat_ungrab(seat);
-#endif
 }
 
 static void GGDKDrawPointerGrab(GWindow w) {
     Log(LOGDEBUG, " ");
     GGDKWindow gw = (GGDKWindow)w;
-#ifndef GGDKDRAW_GDK_3_20
-    GdkDevice *pointer = _GGDKDraw_GetPointer(gw->display);
-    if (pointer == NULL) {
-        return;
-    }
-
-    gdk_device_grab(pointer, gw->w,
-                    GDK_OWNERSHIP_NONE,
-                    false,
-                    GDK_POINTER_MOTION_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_SCROLL_MASK,
-                    NULL, GDK_CURRENT_TIME);
-#else
     GdkSeat *seat = gdk_display_get_default_seat(gw->display->display);
     if (seat == NULL) {
         return;
@@ -2047,7 +1996,6 @@ static void GGDKDrawPointerGrab(GWindow w) {
     gdk_seat_grab(seat, gw->w,
                   GDK_SEAT_CAPABILITY_ALL_POINTING,
                   false, NULL, NULL, NULL, NULL);
-#endif
 }
 
 static void GGDKDrawRequestExpose(GWindow w, GRect *rect, int UNUSED(doclear)) {
