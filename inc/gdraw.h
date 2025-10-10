@@ -300,7 +300,6 @@ extern void  GDrawSetWindowTypeName(GWindow w, char* name);
  * that is returned.
  */
 extern char* GDrawGetWindowTypeName(GWindow w);
-extern int  GDrawSetDither(GDisplay *gdisp, int dither);
 extern void GDrawSetVisible(GWindow w, int visible);
 extern int  GDrawIsVisible(GWindow w);
 extern void GDrawTrueMove(GWindow w, int32_t x, int32_t y);

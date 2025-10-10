@@ -1312,7 +1312,6 @@ return( false );
 
     GDrawPushClip(pixmap,&g->inner,&old3);
     GDrawSetFont(pixmap,st->font);
-    GDrawSetDither(NULL, false);	/* on 8 bit displays we don't want any dithering */
     GDrawSetLineWidth(pixmap,0);
 
     fg = g->state==gs_disabled?g->box->disabled_foreground:
@@ -1370,7 +1369,6 @@ return( false );
 	}
     }
 
-    GDrawSetDither(NULL, true);
     gt_draw_cursor(pixmap, st);
     GDrawPopClip(pixmap,&old3);
     GDrawPopClip(pixmap,&old2);

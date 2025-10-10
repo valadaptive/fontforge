@@ -1063,7 +1063,6 @@ static void ToolsExpose(GWindow pixmap, CharView *cv, GRect *r) {
 	    { 'M', 's', 'e', '2',  '\0' },
 	    { '^', 'M', 's', 'e', '2',  '\0' }};
     int j;
-    int dither = GDrawSetDither(NULL,false);
     GRect temp;
     int canspiro = hasspiro(), inspiro = canspiro && cv->b.sc->inspiro;
     GImage **smalls = inspiro ? spirosmalls : normsmalls;
@@ -1094,7 +1093,6 @@ static void ToolsExpose(GWindow pixmap, CharView *cv, GRect *r) {
 	    GDrawDrawImage(pixmap,smalls[(&cv->b1_tool)[j]],NULL,52-16,bottomOfMainIconsY+j*getSmallIconsHeight());
     }
     GDrawPopClip(pixmap,&old);
-    GDrawSetDither(NULL,dither);
 }
 
 int TrueCharState(GEvent *event) {
@@ -1657,7 +1655,6 @@ return;
     GDrawPushClip(pixmap, &r, &oldclip);
     GDrawFillRect(pixmap,&r,cvpalettebgcol);
 
-    GDrawSetDither(NULL, false);	/* on 8 bit displays we don't want any dithering */
 
     memset(&gi,0,sizeof(gi));
     memset(&base,0,sizeof(base));
@@ -2247,7 +2244,6 @@ return;
     int offsetAtRightOfViewLayer = Layers_getOffsetAtRightOfViewLayer(cv);
     column_width = layerinfo.column_width;
     
-    GDrawSetDither(NULL, false);	/* on 8 bit displays we don't want any dithering */
     ww=layerinfo.sb_start;
 
     memset(&gi,0,sizeof(gi));
@@ -4206,7 +4202,6 @@ static void BVToolsExpose(GWindow pixmap, BitmapView *bv, GRect *r) {
 			            { &GIcon_shift, &GIcon_hand }};
     int i,j,norm;
     int tool = bv->cntrldown?bv->cb1_tool:bv->b1_tool;
-    int dither = GDrawSetDither(NULL,false);
 
     GDrawPushClip(pixmap,r,&old);
     GDrawFillRect(pixmap,r,cvpalettebgcol);
@@ -4220,7 +4215,6 @@ static void BVToolsExpose(GWindow pixmap, BitmapView *bv, GRect *r) {
 	GDrawDrawLine(pixmap,j*27+25,i*27,j*27+25,i*27+25,norm?0x707070:0xe0e0e0);
     }
     GDrawPopClip(pixmap,&old);
-    GDrawSetDither(NULL,dither);
 }
 
 void BVToolsSetCursor(BitmapView *bv, int state,char *device) {

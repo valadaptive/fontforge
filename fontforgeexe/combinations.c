@@ -488,7 +488,6 @@ static void KP_ExposeKerns(KPData *kpd,GWindow pixmap,GRect *rect) {
     memset(&base,'\0',sizeof(base));
     gi.image = &base;
     base.image_type = it_index;
-    GDrawSetDither(NULL, false);
 
     Color fg = GDrawGetDefaultForeground(NULL);
     Color bg = GDrawGetDefaultBackground(NULL);
@@ -557,7 +556,6 @@ static void KP_ExposeKerns(KPData *kpd,GWindow pixmap,GRect *rect) {
     base.clut->trans_index = -1;
 #endif
     GDrawPopClip(pixmap,&old);
-    GDrawSetDither(NULL, true);
 }
 
 static void KP_RefreshKP(KPData *kpd,int index) {

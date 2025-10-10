@@ -1412,11 +1412,6 @@ G_GNUC_BEGIN_IGNORE_DEPRECATIONS
 G_GNUC_END_IGNORE_DEPRECATIONS
 }
 
-static int GGDKDrawSetDither(GDisplay *UNUSED(gdisp), int UNUSED(set)) {
-    // Not implemented; does nothing.
-    return false;
-}
-
 static void GGDKDrawSetVisible(GWindow w, int show) {
     Log(LOGDEBUG, "0x%p %d", w, show);
     GGDKWindow gw = (GGDKWindow)w;
@@ -2254,7 +2249,6 @@ static struct displayfuncs gdkfuncs = {
     GGDKDrawNativeWindowExists, //Not sure what this is meant to do...
     GGDKDrawSetZoom,
     GGDKDrawSetWindowBackground,
-    GGDKDrawSetDither,
 
     GGDKDrawSetVisible,
     GGDKDrawMove,

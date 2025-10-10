@@ -108,11 +108,6 @@ void GDrawSetWindowBackground(GWindow w,Color col) {
     (w->display->funcs->setWindowBackground)(w,col);
 }
 
-int GDrawSetDither(GDisplay *gdisp, int dither) {
-    if ( gdisp==NULL ) gdisp = screen_display;
-return( (gdisp->funcs->setDither)(gdisp,dither) );
-}
-
 void GDrawSetVisible(GWindow w, int visible) {
     (w->display->funcs->setVisible)(w,visible);
 }

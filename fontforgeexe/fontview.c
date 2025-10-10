@@ -317,7 +317,6 @@ static void FVDrawGlyph(GWindow pixmap, FontView *fv, int index, int request_exp
 						bgb + (i*(fgb-bgb))/(clut.clut_len-1));
 		    }
 		}
-		GDrawSetDither(NULL, false);	/* on 8 bit displays we don't want any dithering */
 	    } else {
 		memset(&clut,'\0',sizeof(clut));
 		gi.image = &base;
@@ -5958,7 +5957,6 @@ static void FVExpose(FontView *fv,GWindow pixmap, GEvent *event) {
 	gi.image = &base;
 	base.image_type = it_index;
 	base.clut = fv->show->clut;
-	GDrawSetDither(NULL, false);
 	base.trans = -1;
     } else {
 	memset(&clut,'\0',sizeof(clut));
@@ -6203,7 +6201,6 @@ static void FVExpose(FontView *fv,GWindow pixmap, GEvent *event) {
 	    GDrawDrawLine(pixmap,0,i*fv->cbh+fv->lab_height+fv->magnify*fv->show->ascent+1,fv->width,i*fv->cbh+fv->lab_height+fv->magnify*fv->show->ascent+1,fvmetbaselinecol);
     }
     GDrawPopClip(pixmap,&old);
-    GDrawSetDither(NULL, true);
 }
 
 void FVDrawInfo(FontView *fv,GWindow pixmap, GEvent *event) {
