@@ -730,14 +730,7 @@ void GDrawDestroyDisplays() {
 void GDrawCreateDisplays(char *displayname,char *programname) {
     screen_display = _GGDKDraw_CreateDisplay(displayname, programname);
     if ( screen_display==NULL ) {
-	fprintf( stderr, "Could not open screen.\n" );
-#if __Mac
-	fprintf( stderr, "You must start X11 before you can start %s\n", programname);
-	fprintf( stderr, " X11 is optional software found on your install DVD.\n" );
-#elif __CygWin
-	fprintf( stderr, "You must start X11 before you can start %s\n", programname);
-	fprintf( stderr, " X11 may be obtained from the cygwin site in a separate package.\n" );
-#endif
-exit(1);
+        fprintf( stderr, "Could not open screen.\n" );
+        exit(1);
     }
 }
