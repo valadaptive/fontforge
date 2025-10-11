@@ -34,73 +34,15 @@
 
 #include <math.h>
 
-#if defined(KNIFE_CONTINUOUS)	/* Use this code to do cuts as we move along. Probably a bad idea, let's wait till the end */
-static void ProcessKnife(CharView *cv, PressedOn *p) {
-    real dx, dy;
-    SplinePoint *n;
-
-    /* If we've already made a cut, don't make another cut too close to it */
-    /*  ie. if the hand shakes over a cut let's not get about six tiny cut */
-    /*  segments adjacent to one another */
-    if ( (dx=cv->info.x-cv->lastknife.x)<0 ) dx=-dx;
-    if ( (dy=cv->info.y-cv->lastknife.y)<0 ) dy=-dy;
-    if ( (dx+dy)/cv->scale <= 6 )
-return;
-    if ( p->sp==NULL && p->spline==NULL )
-return;					/* Nothing to cut */
-
-    if ( p->spline!=NULL )
-	p->sp = SplineBisect(p->spline,p->t);
-    if ( p->spl==NULL )		/* Kanou says this can happen. It doesn't hurt to check for it */
-return;
-    if ( p->spl->first!=p->spl->last )
-	if ( p->sp==p->spl->first || p->sp==p->spl->last )
-return;					/* Already cut here */
-    n = chunkalloc(sizeof(SplinePoint));
-    p->sp->pointtype = pt_corner;
-    *n = *p->sp;
-    n->hintmask = NULL;
-    p->sp->next = NULL;
-    n->prev = NULL;
-    n->next->from = n;
-    if ( p->spl->first==p->spl->last ) {
-	p->spl->first = n;
-	p->spl->last = p->sp;
-    } else {
-	SplinePointList *nspl = chunkalloc(sizeof(SplinePointList));
-	nspl->next = p->spl->next;
-	p->spl->next = nspl;
-	nspl->first = n;
-	nspl->last = p->spl->last;
-	p->spl->last = p->sp;
-    }
-
-    cv->lastknife.x = cv->info.x;
-    cv->lastknife.y = cv->info.y;
-    CVSetCharChanged(cv,true);
-    SCUpdateAll(cv->b.sc);
-}
-#endif
 
 void CVMouseDownKnife(CharView *cv) {
-#if defined(KNIFE_CONTINUOUS)
-    CVPreserveState(&cv->b);
-    cv->lastknife.x = cv->lastknife.y = -9999;
-    ProcessKnife(cv,&cv->p);
-#else
     cv->p.rubberlining = true;
-#endif
 }
 
 void CVMouseMoveKnife(CharView *cv, PressedOn *p) {
-#if defined(KNIFE_CONTINUOUS)
-    ProcessKnife(cv,p);
-#else
     GDrawRequestExpose(cv->v,NULL,false);
-#endif
 }
 
-#if !defined(KNIFE_CONTINUOUS)
 static void ReorderSpirosAndAddAndCut(SplineSet *spl,int spiro_index) {
     /* We just cut a closed contour. It is now open. */
     /* If spl->spiros[spiro_index] == spl->first->me then they cut on top of */
@@ -175,11 +117,9 @@ static void SplitSpirosAndAddAndCut(SplineSet *spl,SplineSet *spl2,int spiro_ind
 	spl->spiro_cnt = spiro_index+3;
     }
 }
-#endif
 
 void CVMouseUpKnife(CharView *cv, GEvent *event)
 {
-#if !defined(KNIFE_CONTINUOUS)
     /* draw a line from (cv->p.cx,cv->p.cy) to (cv->info.x,cv->info.y) */
     /*  and cut anything intersected by it */
     SplineSet *spl, *spl2;
@@ -312,6 +252,5 @@ void CVMouseUpKnife(CharView *cv, GEvent *event)
     } else {
         GDrawRequestExpose(cv->v, NULL, false);
     }
-#endif
 }
 
