@@ -1700,13 +1700,12 @@ return(NULL);
 	}
     } else if ( bdf->unhinted_freetype )
 	bdf->glyphs[index] = SplineCharFreeTypeRasterizeNoHints(sc,
-		bdf->layer,bdf->ptsize,bdf->dpi,bdf->clut?4:1);
+		bdf->layer,bdf->ptsize,bdf->dpi,bdf->clut?8:1);
     else
 	bdf->glyphs[index] = NULL;
     if ( bdf->glyphs[index]==NULL ) {
 	if ( bdf->clut ) {
 	    bdf->glyphs[index] = SplineCharAntiAlias(sc,bdf->layer,bdf->truesize,4);
-	    if ( bdf->freetype_context!=NULL || bdf->recontext_freetype || bdf->unhinted_freetype )
 		ByteMult(bdf->glyphs[index],17);	/* Internal rasterizer uses bit depth 4, but font expects 8. Correct by multiplying each byte by 17 */
 	} else
 	    bdf->glyphs[index] = SplineCharRasterize(sc,bdf->layer,bdf->truesize);
@@ -1788,10 +1787,8 @@ BDFFont *SplineFontPieceMeal(SplineFont *sf,int layer,int ptsize,int dpi,
 	bdf->recontext_freetype = bdf->unhinted_freetype = false;
     }
     
-    if ( (ftc || bdf->recontext_freetype) && (flags&pf_antialias) )
+    if ( flags&pf_antialias )
 	BDFClut(bdf,16);
-    else if ( flags&pf_antialias )
-	BDFClut(bdf,4);
 return( bdf );
 }
 

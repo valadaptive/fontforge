@@ -1991,7 +1991,7 @@ static void CVMakeLayers2(CharView *cv) {
     extern int _GScrollBar_Width;
 
     if ( layer2.clut==NULL )
-	layer2.clut = _BDFClut(4);
+	layer2.clut = _BDFClut(16);
     if ( cvlayers2!=NULL )
 return;
     memset(&wattrs,0,sizeof(wattrs));
@@ -3223,7 +3223,7 @@ return( cvlayers );
 
      /* Initialize layerinfo */
     if ( layerinfo.clut==NULL )
-	layerinfo.clut = _BDFClut(4);
+	layerinfo.clut = _BDFClut(16);
 
     layerinfo.font = layerspalette_font.fi;
 
